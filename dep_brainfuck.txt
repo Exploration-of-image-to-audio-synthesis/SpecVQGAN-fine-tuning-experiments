@@ -1,0 +1,8 @@
+a lot of shit had to be done, but it's pretty straightforward luckily
+
+the conda_env file doesn't work at all and all attempts to fix it failed
+i had to build stuff the good old way and install packages when needed. this almost worked, but then i ran into some difficulties with versions. i'm mostly fixing everything using the most straightforward methods (just installing different versions that were in the original conda env file)
+
+when running with error with numpy, i tried downgrading it and then fixing the packages. this didn't work because packages kept installing the latest numpy version. so i instead installed additional packages first, and then downgraded numpy
+
+i got it workinig. the updated conda config is in the conda_env_win.yaml file
