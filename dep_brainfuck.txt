@@ -6,3 +6,13 @@ i had to build stuff the good old way and install packages when needed. this alm
 when running with error with numpy, i tried downgrading it and then fixing the packages. this didn't work because packages kept installing the latest numpy version. so i instead installed additional packages first, and then downgraded numpy
 
 i got it workinig. the updated conda config is in the conda_env_win.yaml file
+
+i got another issue when pushing my changes to git. For the future, if you want to make some changes to the repo and copy it to your private account, do this:
+
+```
+git remote set-url origin 'your_url'
+"make your commit like you would normally"
+git push -u origin main
+```
+
+this should work
