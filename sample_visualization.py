@@ -684,12 +684,12 @@ if __name__ == "__main__":
             elif 'vas.VAS' in config.data.params.train.target:
                 config.data.params[a] = os.path.join(datapath, 'features', '*', Path(config.data.params[a]).name)
 
-    with st.beta_expander('Streamlit Logs'):
+    with st.expander('Streamlit Logs'):
         dsets, model, vocoder, global_step, feat_extractor = load_model_and_dataset(
             config, ckpt, ckpt_vocoder, gpu=True, eval_mode=True
         )
 
-    with st.beta_expander('Sampler Model Config'):
+    with st.expander('Sampler Model Config'):
         st.text(f'Global step: {global_step}')
         st.text(f'Checkpoint: {ckpt}')
         st.json(OmegaConf.to_container(config))
@@ -794,7 +794,7 @@ if __name__ == "__main__":
         flip_z_dims = (2,)
 
         st.text('')
-        with st.beta_expander(f'Original Video. Class: {batch["label"]}.'):
+        with st.expander(f'Original Video. Class: {batch["label"]}.'):
             vid_fname = Path(batch[specs_key_in_batch][0]).name.replace('_mel.npy', '.mp4')
             st.text(f'Video file name: {vid_fname}')
             if 'vggsound.VGGSound' in config.data.params.train.target:
@@ -825,7 +825,7 @@ if __name__ == "__main__":
             rec_cond_shape = crec.squeeze().shape
 
         st.text('')
-        with st.beta_expander(f'Conditioning {list(orig_cond_shape)}'):
+        with st.expander(f'Conditioning {list(orig_cond_shape)}'):
             if transformer_model_name == 'GPTClass':
                 st.write(batch['label'])
             elif transformer_model_name == 'GPTFeatsClass':
@@ -850,14 +850,14 @@ if __name__ == "__main__":
         to_save_results = st.sidebar.checkbox('Save Results', value=True)
 
         st.text('')
-        with st.beta_expander(f'Input {list(x.squeeze().shape)}'):
+        with st.expander(f'Input {list(x.squeeze().shape)}'):
             st.write(tensor_to_plt(x, flip_dims=flip_z_dims))
             topk_results = get_class_preditions(x, feat_extractor)
             st.text(topk_results)
             if st.button('Get Audio (Input)'):
                 spec_to_audio_to_st(x, config.data.params.spec_dir_path,
                                     config.data.params.sample_rate, show_griffin_lim, vocoder)
-        with st.beta_expander(f'Input Reconstruction from SpecVQGAN {list(xrec.squeeze().shape)}', expanded=True):
+        with st.expander(f'Input Reconstruction from SpecVQGAN {list(xrec.squeeze().shape)}', expanded=True):
             st.write(tensor_to_plt(xrec, flip_dims=flip_z_dims))
             topk_results = get_class_preditions(xrec, feat_extractor)
             st.text(topk_results)

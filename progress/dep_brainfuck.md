@@ -16,3 +16,6 @@ git push -u origin main
 ```
 
 this should work
+
+the conda env win yaml file doesn't work when i tried reinstalling the environment. says there is some pip subprocess error that requires python >= 3.9
+the errors disappeared after i added the line `- --extra-index-url https://download.pytorch.org/whl/cu117` right below pip dependencies definitions in the yml file

@@ -27,7 +27,7 @@ model:
     first_stage_config:
       target: specvqgan.models.vqgan.VQModel
       params:
-        ckpt_path: 'Replace the first_stage ckpt path' # e.g. '2021-06-06T19-42-53_vas_specs_vqgan' or '2021-05-19T22-16-54_vggsound_specs_vqgan'
+        ckpt_path: './logs/2021-06-06T19-42-53_vas_codebook/checkpoints/last.ckpt' # e.g. '2021-06-06T19-42-53_vas_specs_vqgan' or '2021-05-19T22-16-54_vggsound_specs_vqgan'
         embed_dim: 256
         n_embed: 128
         ddconfig:

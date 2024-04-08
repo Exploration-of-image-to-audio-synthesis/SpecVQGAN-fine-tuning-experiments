@@ -46,6 +46,6 @@ for class in "${strings[@]}"; do
     download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
 
     # ResNet50 Features
-    # FNAME="${class}_feature_resnet50_dim2048_21.5fps.tar"
-    # download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
+    FNAME="${class}_feature_resnet50_dim2048_21.5fps.tar"
+    download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
 done

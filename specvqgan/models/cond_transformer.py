@@ -115,6 +115,7 @@ class Net2NetTransformer(pl.LightningModule):
         block_size = self.transformer.get_block_size()
         assert not self.transformer.training
         if self.pkeep <= 0.0:
+            print("Reached the part of the code that seems unimplemented. Are you sure you want to sample with pkeep<=0.0?")
             raise NotImplementedError('Implement for GPTFeatsCLass')
             raise NotImplementedError('Implement for GPTFeats')
             raise NotImplementedError('Implement for GPTClass')

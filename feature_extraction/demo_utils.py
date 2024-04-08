@@ -25,6 +25,7 @@ from specvqgan.data.vggsound import CropFeats
 from specvqgan.util import download, md5_hash
 from specvqgan.models.cond_transformer import disabled_train
 from train import instantiate_from_config
+from torchvision.models.efficientnet import EfficientNet_B4_Weights
 
 from feature_extraction.extract_mel_spectrogram import get_spectrogram
 
