@@ -38,7 +38,7 @@ def which_ffmpeg() -> str:
     Returns:
         str -- path to the library
     '''
-    result = subprocess.run(['where.exe', 'ffmpeg'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    result = subprocess.run(['which', 'ffmpeg'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     ffmpeg_path = result.stdout.decode('utf-8').replace('\n', '')
     return ffmpeg_path
 
@@ -48,7 +48,7 @@ def which_ffprobe() -> str:
     Returns:
         str -- path to the library
     '''
-    result = subprocess.run(['where.exe', 'ffprobe'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    result = subprocess.run(['which', 'ffprobe'], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     ffprobe_path = result.stdout.decode('utf-8').replace('\n', '')
     return ffprobe_path
 

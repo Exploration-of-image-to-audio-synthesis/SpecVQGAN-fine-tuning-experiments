@@ -21,8 +21,6 @@ from specvqgan.data.vggsound import CropImage
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-import pathlib
-pathlib.PosixPath = pathlib.WindowsPath
 model_name = '2021-07-30T21-34-25_vggsound_transformer'
 log_dir = './logs'
 config, sampler, melgan, melception = load_model(model_name, log_dir, device)

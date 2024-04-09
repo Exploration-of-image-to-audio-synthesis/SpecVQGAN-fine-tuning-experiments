@@ -87,9 +87,9 @@ data:
     spec_crop_len: 848
     random_crop: False
 
-    rgb_feats_dir_path: './data/vas/features/*/feature_rgb_bninception_dim1024_21.5fps' # BNInception features
-    flow_feats_dir_path: './data/vas/features/*/feature_flow_bninception_dim1024_21.5fps' # BNInception features
-    # rgb_feats_dir_path: './data/vas/features/*/feature_resnet50_dim2048_21.5fps' # ResNet50 features
+    #rgb_feats_dir_path: './data/vas/features/*/feature_rgb_bninception_dim1024_21.5fps' # BNInception features
+    #flow_feats_dir_path: './data/vas/features/*/feature_flow_bninception_dim1024_21.5fps' # BNInception features
+    rgb_feats_dir_path: './data/vas/features/*/feature_resnet50_dim2048_21.5fps' # ResNet50 features
     feat_depth: 2048
     feat_len: 215
     feat_crop_len: 212
