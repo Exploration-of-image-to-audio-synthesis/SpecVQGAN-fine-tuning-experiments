@@ -39,13 +39,13 @@ for class in "${strings[@]}"; do
     download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
 
     # BN Inception Features
-    FNAME="${class}_feature_rgb_bninception_dim1024_21.5fps.tar"
-    download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
+    #FNAME="${class}_feature_rgb_bninception_dim1024_21.5fps.tar"
+    #download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
 
-    FNAME="${class}_feature_flow_bninception_dim1024_21.5fps.tar"
-    download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
+    #FNAME="${class}_feature_flow_bninception_dim1024_21.5fps.tar"
+    #in thdownload_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
 
     # ResNet50 Features
     FNAME="${class}_feature_resnet50_dim2048_21.5fps.tar"
-    download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
+    download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO/$class $MD5SUM_GT
 done
