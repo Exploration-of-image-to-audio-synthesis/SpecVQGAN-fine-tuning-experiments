@@ -1,6 +1,7 @@
 
 __pycache__
 /logs/
+/evaluation/logs/
 downloaded_features
 vas
 VAS
