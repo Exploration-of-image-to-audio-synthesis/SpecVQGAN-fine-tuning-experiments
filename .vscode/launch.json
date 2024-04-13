@@ -27,6 +27,25 @@
                 "--gpus",
                 "1"
             ]
+        },
+        {
+            "name": "sample with model",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "evaluation/generate_samples.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "sampler.config_sampler=./evaluation/configs/sampler_vas.yaml",
+                "sampler.model_logdir=./logs/2024-04-12T22-08-00_vas_transformer_efficientnet",
+                "sampler.splits= [train,validation]",
+                "sampler.samples_per_video=10",
+                "sampler_batch_size=4",
+                "sampler.top_k=64", // use TOP_K=512 when evaluating a VAS transformer trained with a VGGSound codebook
+                "data.params.spec_dir_path=./data/vas/features/*/melspec_10s_22050hz/",
+                "data.params.rgb_feats_dir_path=./data/vas/features/*/feature_efficientnet_v2_s_dim1280_21.5fps/",
+                //"sampler.now=$CURRENT_YEAR-$CURRENT_MONTH-$CURRENT_DATET$CURRENT_HOUR-$CURRENT_MINUTE-$CURRENT_SECOND",
+            ]
         }
     ]
 }
