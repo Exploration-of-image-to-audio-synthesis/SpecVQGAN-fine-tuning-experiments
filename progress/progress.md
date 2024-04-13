@@ -15,4 +15,14 @@ The feature downloading feature is broken. When I run the script "download_vas_f
 i want to run the tranformer training from scratch to see in what format does it need the features to be
 
 
+removed the early stop callback
+modified the feature extraction pipeline (added efficient net, added tiling of video to 10 seconds, mentioned in docs but was not in the code)
 
+now monitoring training loss instead of validation loss
+then switched to monitoring loss instead of training loss
+
+added auto_scale_batch_size option (although it might be useless if batch size is set to 2 in the data config idk)
+
+
+you can write about turso in coursework
+also write about why you selected efficient net, some graphs, comparisons etc

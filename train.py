@@ -596,6 +596,7 @@ if __name__ == '__main__':
     ckptdir = os.path.join(logdir, 'checkpoints')
     cfgdir = os.path.join(logdir, 'configs')
     seed_everything(opt.seed)
+    print('Logs will be saved to:', logdir)
 
     try:
         # init and save configs
@@ -605,12 +606,9 @@ if __name__ == '__main__':
         lightning_config = config.pop('lightning', OmegaConf.create())
         # merge trainer cli with config
         trainer_config = lightning_config.get('trainer', OmegaConf.create())
-        # default to ddp
-        trainer_config['distributed_backend'] = 'ddp'
         for k in nondefault_trainer_args(opt):
             trainer_config[k] = getattr(opt, k)
         if 'gpus' not in trainer_config:
-            del trainer_config['distributed_backend']
             cpu = True
         else:
             gpuinfo = trainer_config['gpus']
