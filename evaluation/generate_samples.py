@@ -52,6 +52,10 @@ def load_and_save_config():
                 elif 'vas.VAS' in cfg.data.params.train.target:
                     cfg.data.params[a] = os.path.join('./data/vas/features/*', Path(cfg.data.params[a]).name)
 
+    # add the sampler.now as the current time by default if it wasn't set
+    if cfg.sampler.now is None:
+        cfg.sampler.now = datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+
     # save the config
     save_config(cfg)
     return cfg
