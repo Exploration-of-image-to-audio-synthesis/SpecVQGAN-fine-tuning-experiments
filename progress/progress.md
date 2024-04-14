@@ -26,3 +26,6 @@ added auto_scale_batch_size option (although it might be useless if batch size i
 
 you can write about turso in coursework
 also write about why you selected efficient net, some graphs, comparisons etc
+
+
+also i tried colab but that didn't work because it needs a lot of space

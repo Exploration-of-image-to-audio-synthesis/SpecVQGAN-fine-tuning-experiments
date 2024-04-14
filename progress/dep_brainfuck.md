@@ -19,3 +19,18 @@ this should work
 
 the conda env win yaml file doesn't work when i tried reinstalling the environment. says there is some pip subprocess error that requires python >= 3.9
 the errors disappeared after i added the line `- --extra-index-url https://download.pytorch.org/whl/cu117` right below pip dependencies definitions in the yml file
+
+
+TURSO BRAINFUCK
+
+module load Python/3.8.6-GCCcore-10.2.0
+mkdir python386
+virtualenv python386
+cd python386
+source bin/activate
+pip install -r ../requirements.txt
+(error when installing backcall)
+
+module load Anaconda3 worked
+the environment installed successfully (wtf)
+
