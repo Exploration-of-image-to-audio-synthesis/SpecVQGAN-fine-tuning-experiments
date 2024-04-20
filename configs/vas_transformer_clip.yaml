@@ -75,15 +75,15 @@ lightning:
   trainer:
     accelerator: dp
     auto_scale_batch_size: binsearch
-    gpus: 8
+    gpus: 4
     auto_select_gpus: true
 
 
 data:
   target: train.ConditionedSpectrogramDataModuleFromConfig
   params:
-    batch_size: 2
-    num_workers: 8
+    batch_size: 64
+    num_workers: 128
 
     spec_dir_path: './data/vas/features/*/melspec_10s_22050hz'
     sample_rate: 22050
