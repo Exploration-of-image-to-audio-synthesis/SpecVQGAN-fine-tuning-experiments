@@ -35,8 +35,8 @@ MD5SUM_GT="./md5sum_vas.md5"
 strings=("dog" "fireworks" "drum" "baby" "gun" "sneeze" "cough" "hammer")
 for class in "${strings[@]}"; do
     # spectrograms
-    FNAME="${class}_melspec_10s_22050hz.tar"
-    download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
+    #FNAME="${class}_melspec_10s_22050hz.tar"
+    #download_check_expand_rmtar $BASE_LINK $FNAME $WHERE_TO $MD5SUM_GT
 
     # BN Inception Features
     #FNAME="${class}_feature_rgb_bninception_dim1024_21.5fps.tar"
