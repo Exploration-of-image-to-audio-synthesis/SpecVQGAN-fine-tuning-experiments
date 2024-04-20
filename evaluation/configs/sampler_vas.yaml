@@ -1,6 +1,6 @@
 sampler:
   splits: ['train', 'validation']
-  batch_size: 32
+  batch_size: 64
   num_workers: 4
   temperature: 1.0
   sample_next_tok_from_pred_dist: True

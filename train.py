@@ -717,12 +717,26 @@ if __name__ == '__main__':
                 ngpu = 1
         else:
             ngpu = 1
+
+        # using lr_find() to find the best starting learning rate
         accumulate_grad_batches = lightning_config.trainer.accumulate_grad_batches or 1
         print(f'accumulate_grad_batches = {accumulate_grad_batches}')
         lightning_config.trainer.accumulate_grad_batches = accumulate_grad_batches
+    
+        prev_best_lr = accumulate_grad_batches * ngpu * bs * base_lr
+        print('The previous best learning rate was: {:.2e}'.format(prev_best_lr))
         model.learning_rate = accumulate_grad_batches * ngpu * bs * base_lr
         print('Setting learning rate to {:.2e} = {} (accumulate_grad_batches) * {} (num_gpus) * {} (batchsize) * {:.2e} (base_lr)'.format(
             model.learning_rate, accumulate_grad_batches, ngpu, bs, base_lr))
+        
+        
+        lr_finder = trainer.tuner.lr_find(model, data)
+        fig = lr_finder.plot(suggest=True)
+        fig.show()
+
+        suggested_best_lr = lr_finder.suggestion()
+        print('The suggested best learning rate is {:.2e}. Setting it as a new learning rate'.format(suggested_best_lr))
+        model.learning_rate = suggested_best_lr        
 
         # allow checkpointing via USR1
         def melk(*args, **kwargs):

@@ -285,6 +285,7 @@ def main():
     samples_split_dirs = make_folder_for_samples(cfg)
 
     if local_rank is not None:
+        print("Detected LOCAL_RANK environment variable. Starting in DDP enabled mode")
         is_ddp = True
         local_rank = int(local_rank)
         # 300s is a timeout for other worker to check out when the first one reached the barrier
@@ -294,6 +295,7 @@ def main():
             print('MASTER:', os.environ['MASTER_ADDR'], ':', os.environ['MASTER_PORT'])
             print(OmegaConf.to_yaml(cfg))
     else:
+        print("LOCAL_RANK was not set. Sampling without DDP")
         is_ddp = False
         print(OmegaConf.to_yaml(cfg))
         local_rank = 0

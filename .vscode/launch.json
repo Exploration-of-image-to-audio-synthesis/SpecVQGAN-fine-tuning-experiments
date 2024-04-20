@@ -21,7 +21,7 @@
             "justMyCode": false,
             "args": [
                 "--base",
-                "configs/vas_transformer_efficientnet.yaml",
+                "configs/vas_transformer_clip.yaml",
                 "-t",
                 "True",
                 "--gpus",

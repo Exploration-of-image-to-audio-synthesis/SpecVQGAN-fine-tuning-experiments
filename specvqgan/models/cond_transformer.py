@@ -24,7 +24,8 @@ class Net2NetTransformer(pl.LightningModule):
                  first_stage_key="image",
                  cond_stage_key="depth",
                  downsample_cond_size=-1,
-                 pkeep=1.0):
+                 pkeep=1.0,
+                 learning_rate=1e-6):
 
         super().__init__()
         self.init_first_stage_from_ckpt(first_stage_config)
@@ -43,6 +44,7 @@ class Net2NetTransformer(pl.LightningModule):
         self.cond_stage_key = cond_stage_key
         self.downsample_cond_size = downsample_cond_size
         self.pkeep = pkeep
+        self.learning_rate = learning_rate
 
     def init_from_ckpt(self, path, ignore_keys=list()):
         sd = torch.load(path, map_location="cpu")["state_dict"]
@@ -393,7 +395,7 @@ class Net2NetTransformer(pl.LightningModule):
 
         # create the pytorch optimizer object
         optim_groups = [
-            {"params": [param_dict[pn] for pn in sorted(list(decay))], "weight_decay": 0.01},
+            {"params": [param_dict[pn] for pn in sorted(list(decay))], "weight_decay": 0.1},
             {"params": [param_dict[pn] for pn in sorted(list(no_decay))], "weight_decay": 0.0},
         ]
         optimizer = torch.optim.AdamW(optim_groups, lr=self.learning_rate, betas=(0.9, 0.95))
