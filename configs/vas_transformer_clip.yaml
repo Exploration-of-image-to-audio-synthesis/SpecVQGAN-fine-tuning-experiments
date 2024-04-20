@@ -74,9 +74,10 @@ lightning:
     #     verbose: True
   trainer:
     accelerator: dp
-    auto_scale_batch_size: binsearch
+    #auto_scale_batch_size: binsearch
     gpus: 8
-    auto_select_gpus: true
+    auto_select_gpus: True
+    auto_lr_find: True
 
 
 data:
