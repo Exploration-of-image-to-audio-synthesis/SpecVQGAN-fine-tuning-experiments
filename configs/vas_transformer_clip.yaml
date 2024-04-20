@@ -74,17 +74,10 @@ lightning:
     #     verbose: True
   trainer:
     accelerator: dp
-<<<<<<< HEAD
-    auto_scale_batch_size: binsearch
-    gpus: 4
-    auto_select_gpus: true
-=======
     #auto_scale_batch_size: binsearch
     gpus: 8
     auto_select_gpus: True
     auto_lr_find: True
->>>>>>> f9bf3bde7ddd7531d0732731841e6d3445a00b9c
-
 
 data:
   target: train.ConditionedSpectrogramDataModuleFromConfig
