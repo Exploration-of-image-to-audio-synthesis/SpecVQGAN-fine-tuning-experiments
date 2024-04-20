@@ -1,0 +1,32 @@
+#!/bin/bash
+#SBATCH --job-name=transformer_train
+#SBATCH -M ukko
+#SBATCH -o result_train_vas_transformer.txt
+#SBATCH -p gpu
+#SBATCH -c 80
+#SBATCH -G 4
+#SBATCH -n 1
+#SBATCH --constraint=v100
+#SBATCH --mem=64G
+#SBATCH -t 2-00:00:00
+
+
+# exit when any command fails
+set -e
+
+# install modules
+module purge
+module load Anaconda3
+module load cuDNN/8.6.0.163-CUDA-11.8.0
+
+module list
+
+# activate conda
+source /wrk-vakka/appl/easybuild/opt/Anaconda3/2023.09-0/etc/profile.d/conda.sh
+#source /appl/easybuild/opt/Anaconda3/2023.09-0/etc/profile.d/conda.sh
+conda activate specvqgan-updated
+
+# verify that the conda environment was activated
+python --version
+
+python train.py --base configs/vas_transformer_clip.yaml -t True --resume_from_checkpoint ./logs/2024-04-19T01-39-41_vas_transformer_clip/checkpoints/last.ckpt
