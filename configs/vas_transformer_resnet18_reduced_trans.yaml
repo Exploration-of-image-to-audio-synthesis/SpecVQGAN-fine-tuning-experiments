@@ -1,5 +1,5 @@
 model:
-  base_learning_rate: 5e-4
+  base_learning_rate: 1e-6
   target: specvqgan.models.cond_transformer.Net2NetTransformer
   params:
     cond_stage_key: feature
@@ -72,17 +72,14 @@ lightning:
     #     min_delta: 0.00
     #     patience: 2
     #     verbose: True
-  trainer:
-    #accelerator: dp
-    #auto_scale_batch_size: binsearch
-    gpus: 1
-    #auto_select_gpus: True
-    #auto_lr_find: True
+  #trainer:
+    
+
 
 data:
   target: train.ConditionedSpectrogramDataModuleFromConfig
   params:
-    batch_size: 32
+    batch_size: 20
     num_workers: 20
 
     spec_dir_path: './data/vas/features/*/melspec_10s_22050hz'
@@ -94,7 +91,7 @@ data:
 
     #rgb_feats_dir_path: './data/vas/features/*/feature_rgb_bninception_dim1024_21.5fps' # BNInception features
     #flow_feats_dir_path: './data/vas/features/*/feature_flow_bninception_dim1024_21.5fps' # BNInception features
-    rgb_feats_dir_path: './data/vas/features/*/feature_clip_ViT-B_32_dim512_21.5fps' # CLIP features
+    rgb_feats_dir_path: './data/vas/features/*/feature_resnet18_dim512_21.5fps' # ResNet18 features
     feat_depth: 512
     feat_len: 215
     feat_crop_len: 212
