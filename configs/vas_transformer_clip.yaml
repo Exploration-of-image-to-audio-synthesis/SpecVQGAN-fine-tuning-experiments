@@ -40,7 +40,7 @@ model:
           ch_mult: [1, 1, 2, 2, 4]
           num_res_blocks: 2
           attn_resolutions: [53]
-          dropout: 0.0
+          dropout: 0.3
         lossconfig:
           target: specvqgan.modules.losses.DummyLoss
     # no permuter for the cond stage as the raw features is already a sequence
@@ -75,14 +75,14 @@ lightning:
   trainer:
     accelerator: dp
     #auto_scale_batch_size: binsearch
-    gpus: 8
+    gpus: 3
     auto_select_gpus: True
-    auto_lr_find: True
+    #auto_lr_find: True
 
 data:
   target: train.ConditionedSpectrogramDataModuleFromConfig
   params:
-    batch_size: 64
+    batch_size: 400
     num_workers: 128
 
     spec_dir_path: './data/vas/features/*/melspec_10s_22050hz'
@@ -101,7 +101,7 @@ data:
     feat_sampler_cfg:
       target: specvqgan.data.vas.ResampleFrames
       params:
-        feat_sample_size: 212  # will resample `feat_crop_len` evenly to match `feat_sample_size`
+        feat_sample_size: 1  # will resample `feat_crop_len` evenly to match `feat_sample_size`
         # times_to_repeat_after_resample: 5  # will duplicate each of `feat_sample_size` by this number
 
     train:

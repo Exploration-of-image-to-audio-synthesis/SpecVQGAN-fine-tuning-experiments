@@ -26,7 +26,7 @@ kl_cfg:
   classes: ['baby', 'cough', 'dog', 'drum', 'fireworks', 'gun', 'hammer', 'sneeze']
 
 extraction_cfg:
-  batch_size: 2
+  batch_size: 128
   save_cpu_ram: False
 
 feature_extractor: # vggsound-inception-v3     features_list: ['logits_unbiased', '2048', 'logits']

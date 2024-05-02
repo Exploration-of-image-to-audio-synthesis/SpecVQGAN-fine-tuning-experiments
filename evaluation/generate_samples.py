@@ -80,10 +80,10 @@ def make_folder_for_samples(cfg):
 def load_model_and_dataloaders(cfg, device, is_ddp=False):
     # find the checkpoint path
     # e.g. checkpoints have names `epoch_000012.ckpt`
-    if (Path(cfg.sampler.model_logdir) / 'checkpoints/last.ckpt').exists():
-        ckpt_model = Path(cfg.sampler.model_logdir) / 'checkpoints/last.ckpt'
-    else:
-        ckpt_model = sorted(Path(cfg.sampler.model_logdir).glob('checkpoints/*.ckpt'))[-1]
+   # if (Path(cfg.sampler.model_logdir) / 'checkpoints/last.ckpt').exists():
+    #    ckpt_model = Path(cfg.sampler.model_logdir) / 'checkpoints/last.ckpt'
+    #else:
+    ckpt_model = sorted(Path(cfg.sampler.model_logdir).glob('checkpoints/*.ckpt'))[0]
     # assert not (Path(cfg.sampler.model_logdir) / 'checkpoints/last.ckpt').exists()
     print(f'Going to use the checkpoint from {ckpt_model}')
 

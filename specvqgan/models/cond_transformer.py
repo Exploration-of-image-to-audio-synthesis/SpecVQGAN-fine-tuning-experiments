@@ -395,12 +395,12 @@ class Net2NetTransformer(pl.LightningModule):
 
         # create the pytorch optimizer object
         optim_groups = [
-            {"params": [param_dict[pn] for pn in sorted(list(decay))], "weight_decay": 0.1},
+            {"params": [param_dict[pn] for pn in sorted(list(decay))], "weight_decay": 0.01},
             {"params": [param_dict[pn] for pn in sorted(list(no_decay))], "weight_decay": 0.0},
         ]
         optimizer = torch.optim.AdamW(optim_groups, lr=self.learning_rate, betas=(0.9, 0.95))
-        cosine_annealing_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, 100)
-        return optimizer, cosine_annealing_scheduler
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+        return {'optimizer': optimizer, 'lr_scheduler': scheduler, 'monitor': 'val/loss'}
 
 
 if __name__ == '__main__':
