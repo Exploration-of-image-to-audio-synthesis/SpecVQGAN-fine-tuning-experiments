@@ -1,4 +1,4 @@
-name: specvqgan-updated
+name: specvqgan-bug
 channels:
   - pytorch
   - nvidia

@@ -45,3 +45,18 @@ but if i change the weight decay from 0.01 to 0.1, it works and finds this learn
 ![lr graph](image-3.png)
 ![lr graph zoomed](image-4.png)
 which is quite close to what was set as the base learning rate in the model. I set is as a new base learning rate. I need to check if it scales with a different batchsize
+
+
+To display on tensorboard:
+On slurm, launch:
+```
+cd prj/SpecVQGAN-win
+module purge
+module load Python
+pip install tensorboard
+pip install protobuf==4.25.3
+python -m tensorboard.main --logdir=./logs/{logdir}
+```
+
+On remote desktop, launch:
+ssh -L 16006:localhost:6006 {ip addr of turso login node where tensorboard is launched}

@@ -399,8 +399,8 @@ class Net2NetTransformer(pl.LightningModule):
             {"params": [param_dict[pn] for pn in sorted(list(no_decay))], "weight_decay": 0.0},
         ]
         optimizer = torch.optim.AdamW(optim_groups, lr=self.learning_rate, betas=(0.9, 0.95))
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
-        return {'optimizer': optimizer, 'lr_scheduler': scheduler, 'monitor': 'val/loss'}
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=2)
+        return {"optimizer": optimizer, "lr_scheduler": scheduler, "monitor": "val/loss"}
 
 
 if __name__ == '__main__':

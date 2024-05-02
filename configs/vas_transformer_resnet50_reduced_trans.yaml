@@ -1,5 +1,5 @@
 model:
-  base_learning_rate: 5e-4
+  base_learning_rate: 1e-6
   target: specvqgan.models.cond_transformer.Net2NetTransformer
   params:
     cond_stage_key: feature
@@ -9,7 +9,7 @@ model:
         feat_embedding_config:
           target: torch.nn.Conv1d
           params:
-            in_channels: 512  # feat_depth
+            in_channels: 2048  # feat_depth
             out_channels: 512  # n_embd
             kernel_size: 1
             padding: 0
@@ -72,18 +72,15 @@ lightning:
     #     min_delta: 0.00
     #     patience: 2
     #     verbose: True
-  trainer:
-    #accelerator: dp
-    #auto_scale_batch_size: binsearch
-    gpus: 3
-    auto_select_gpus: True
-    #auto_lr_find: True
+  # trainer:
+  #   auto_scale_batch_size: binsearch
+
 
 data:
   target: train.ConditionedSpectrogramDataModuleFromConfig
   params:
-    batch_size: 400
-    num_workers: 128
+    batch_size: 20
+    num_workers: 20
 
     spec_dir_path: './data/vas/features/*/melspec_10s_22050hz'
     sample_rate: 22050
@@ -94,14 +91,14 @@ data:
 
     #rgb_feats_dir_path: './data/vas/features/*/feature_rgb_bninception_dim1024_21.5fps' # BNInception features
     #flow_feats_dir_path: './data/vas/features/*/feature_flow_bninception_dim1024_21.5fps' # BNInception features
-    rgb_feats_dir_path: './data/vas/features/*/feature_clip_ViT-B_32_dim512_21.5fps' # CLIP features
-    feat_depth: 512
+    rgb_feats_dir_path: './data/vas/features/*/feature_resnet50_dim2048_21.5fps' # ResNet50 features
+    feat_depth: 2048
     feat_len: 215
     feat_crop_len: 212
     feat_sampler_cfg:
       target: specvqgan.data.vas.ResampleFrames
       params:
-        feat_sample_size: 1  # will resample `feat_crop_len` evenly to match `feat_sample_size`
+        feat_sample_size: 212  # will resample `feat_crop_len` evenly to match `feat_sample_size`
         # times_to_repeat_after_resample: 5  # will duplicate each of `feat_sample_size` by this number
 
     train:
