@@ -79,7 +79,7 @@ lightning:
 data:
   target: train.ConditionedSpectrogramDataModuleFromConfig
   params:
-    batch_size: 20
+    batch_size: 16
     num_workers: 20
 
     spec_dir_path: './data/vas/features/*/melspec_10s_22050hz'

@@ -1,5 +1,5 @@
 model:
-  base_learning_rate: 1e-6
+  base_learning_rate: 1e-4
   target: specvqgan.models.cond_transformer.Net2NetTransformer
   params:
     cond_stage_key: feature
