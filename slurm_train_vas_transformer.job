@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=transformer_train
 #SBATCH -M ukko
-#SBATCH -o result_train_vas_transformer.txt
+#SBATCH -o result_train_vas_transformer_clip_small_loss_reproducing_smaller_embed.txt
 #SBATCH -p gpu-oversub
 #SBATCH -c 128
 #SBATCH -G 3
@@ -29,4 +29,4 @@ conda activate specvqgan-updated
 # verify that the conda environment was activated
 python --version
 
-python train.py --base configs/vas_transformer_clip.yaml -t True
+python train.py --base configs/vas_transformer_clip_reproducing_small_val_loss.yaml -t True
