@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=transformer_train
 #SBATCH -M ukko
-#SBATCH -o result_train_vas_transformer_clip_smaller_embed_larger_weight_decay.txt
+#SBATCH -o result_train_vas_transformer_clip_smaller_embed.txt
 #SBATCH -p gpu
 #SBATCH -c 80
 #SBATCH -G 8
@@ -29,4 +29,4 @@ conda activate specvqgan-updated
 # verify that the conda environment was activated
 python --version
 
-python train.py --base configs/vas_transformer_clip_smaller_embed_larger_weight_decay.yaml -t True
+python train.py --base configs/vas_transformer_clip_smaller_embed.yaml -t True
