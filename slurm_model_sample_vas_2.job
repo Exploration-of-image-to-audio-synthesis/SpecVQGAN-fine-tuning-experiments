@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=model_sample_smaller_embed
+#SBATCH --job-name=model_sample_fnet_larger_weight_decay
 #SBATCH -M ukko
-#SBATCH -o result_eval_clip_small_loss_smaller_embed_larger_weight_decay.txt
+#SBATCH -o result_eval_fnet_small_loss_larger_weight_decay.txt
 #SBATCH -p gpu
 #SBATCH -c 80
 #SBATCH -G 8
@@ -44,7 +44,7 @@ NUM_GPUS=${#NUM_GPUS}
 
 
 # Path to experiment
-EXPERIMENT_PATH=logs/2024-05-04T23-55-05_vas_transformer_clip_smaller_embed_larger_weight_decay
+EXPERIMENT_PATH=logs/2024-05-06T03-12-54_vas_transformer_fnet_small_loss_larger_weight_decay
 
 # Select a dataset here
 DATASET="VAS"
@@ -60,7 +60,7 @@ VAS_SAMPLES_PER_VIDEO=2
 if [[ "$DATASET" == "VAS" ]]; then
     EVAL_MELCEPTION_CFG="./evaluation/configs/eval_melception_vas.yaml"
     SPEC_DIR_PATH="data/vas/features/*/melspec_10s_22050hz/"
-    RGB_FEATS_DIR_PATH="../SpecVQGAN/data/vas/features/*/feature_clip_ViT-B_32_dim512_21.5fps/"
+    RGB_FEATS_DIR_PATH="../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_s_dim1280_21.5fps/"
     SAMPLES_FOLDER="VAS_validation"
     SPLITS="[train,validation]"
     SAMPLER_BATCHSIZE=64

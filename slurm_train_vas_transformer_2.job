@@ -1,14 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=transformer_train
+#SBATCH --job-name=transformer_train_fnet_larger_w_decay
 #SBATCH -M ukko
-#SBATCH -o result_train_vas_transformer_clip_smaller_embed.txt
+#SBATCH -o result_train_vas_transformer_fnet_small_loss_larger_weight_decay.txt
 #SBATCH -p gpu
 #SBATCH -c 80
 #SBATCH -G 8
 #SBATCH -n 1
 #SBATCH --constraint=v100
 #SBATCH --mem=64G
-#SBATCH -t 12:00:00
+#SBATCH -t 4:30:00
 
 
 # exit when any command fails
@@ -29,4 +29,4 @@ conda activate specvqgan-updated
 # verify that the conda environment was activated
 python --version
 
-python train.py --base configs/vas_transformer_clip_smaller_embed.yaml -t True
+python train.py --base configs/vas_transformer_fnet_small_loss_larger_weight_decay.yaml -t True

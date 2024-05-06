@@ -1,0 +1,528 @@
+
+Currently Loaded Modules:
+  1) Anaconda3/2023.09-0   2) CUDA/11.8.0   3) cuDNN/8.6.0.163-CUDA-11.8.0
+
+ 
+
+Hostlist: dgx1-02
+Samples per video: 2 ; Sampler path ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l
+data/vas/features/baby/melspec_10s_22050hz/ data/vas/features/cough/melspec_10s_22050hz/ data/vas/features/dog/melspec_10s_22050hz/ data/vas/features/drum/melspec_10s_22050hz/ data/vas/features/fireworks/melspec_10s_22050hz/ data/vas/features/gun/melspec_10s_22050hz/ data/vas/features/hammer/melspec_10s_22050hz/ data/vas/features/sneeze/melspec_10s_22050hz/
+../SpecVQGAN/data/vas/features/baby/feature_efficientnet_v2_l_dim1280_21.5fps/ ../SpecVQGAN/data/vas/features/cough/feature_efficientnet_v2_l_dim1280_21.5fps/ ../SpecVQGAN/data/vas/features/dog/feature_efficientnet_v2_l_dim1280_21.5fps/ ../SpecVQGAN/data/vas/features/drum/feature_efficientnet_v2_l_dim1280_21.5fps/ ../SpecVQGAN/data/vas/features/fireworks/feature_efficientnet_v2_l_dim1280_21.5fps/ ../SpecVQGAN/data/vas/features/gun/feature_efficientnet_v2_l_dim1280_21.5fps/ ../SpecVQGAN/data/vas/features/hammer/feature_efficientnet_v2_l_dim1280_21.5fps/ ../SpecVQGAN/data/vas/features/sneeze/feature_efficientnet_v2_l_dim1280_21.5fps/
+
+Starting TOP-64. Number of Samples/Video: 2
+/home/beimukvo/.conda/envs/specvqgan-updated/lib/python3.8/site-packages/torch/distributed/launch.py:183: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  warnings.warn(
+[2024-05-05 05:22:14,215] torch.distributed.run: [WARNING] 
+[2024-05-05 05:22:14,215] torch.distributed.run: [WARNING] *****************************************
+[2024-05-05 05:22:14,215] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+[2024-05-05 05:22:14,215] torch.distributed.run: [WARNING] *****************************************
+Detected LOCAL_RANK environment variable. Starting in DDP enabled mode
+Detected LOCAL_RANK environment variable. Starting in DDP enabled mode
+Detected LOCAL_RANK environment variable. Starting in DDP enabled mode
+Detected LOCAL_RANK environment variable. Starting in DDP enabled mode
+Detected LOCAL_RANK environment variable. Starting in DDP enabled modeDetected LOCAL_RANK environment variable. Starting in DDP enabled mode
+
+Detected LOCAL_RANK environment variable. Starting in DDP enabled mode
+Detected LOCAL_RANK environment variable. Starting in DDP enabled mode
+WORLDSIZE 8 – RANK 1
+WORLDSIZE 8 – RANK 6
+WORLDSIZE 8 – RANK 7
+WORLDSIZE 8 – RANK 5
+WORLDSIZE 8 – RANK 4
+WORLDSIZE 8 – RANK 3
+WORLDSIZE 8 – RANK 2
+WORLDSIZE 8 – RANK 0
+MASTER: dgx1-02 : 49817
+model:
+  base_learning_rate: 1.0e-06
+  target: specvqgan.models.cond_transformer.Net2NetTransformer
+  params:
+    cond_stage_key: feature
+    transformer_config:
+      target: specvqgan.modules.transformer.mingpt.GPTFeats
+      params:
+        feat_embedding_config:
+          target: torch.nn.Conv1d
+          params:
+            in_channels: 1280
+            out_channels: 1024
+            kernel_size: 1
+            padding: 0
+        GPT_config:
+          vocab_size: 128
+          block_size: 477
+          n_layer: 24
+          n_head: 16
+          n_embd: 1024
+    first_stage_permuter_config:
+      target: specvqgan.modules.transformer.permuter.ColumnMajor
+      params:
+        H: 5
+        W: 53
+    first_stage_config:
+      target: specvqgan.models.vqgan.VQModel
+      params:
+        ckpt_path: ./logs/2021-06-06T19-42-53_vas_codebook/checkpoints/last.ckpt
+        embed_dim: 256
+        n_embed: 128
+        ddconfig:
+          double_z: false
+          z_channels: 256
+          resolution: 848
+          in_channels: 1
+          out_ch: 1
+          ch: 128
+          ch_mult:
+          - 1
+          - 1
+          - 2
+          - 2
+          - 4
+          num_res_blocks: 2
+          attn_resolutions:
+          - 53
+          dropout: 0.0
+        lossconfig:
+          target: specvqgan.modules.losses.DummyLoss
+    cond_stage_config:
+      target: specvqgan.modules.misc.raw_feats.RawFeatsStage
+data:
+  target: train.ConditionedSpectrogramDataModuleFromConfig
+  params:
+    batch_size: 64
+    num_workers: 80
+    spec_dir_path: data/vas/features/*/melspec_10s_22050hz/
+    sample_rate: 22050
+    mel_num: 80
+    spec_len: 860
+    spec_crop_len: 848
+    random_crop: false
+    rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+    feat_depth: 1280
+    feat_len: 215
+    feat_crop_len: 212
+    feat_sampler_cfg:
+      target: specvqgan.data.vas.ResampleFrames
+      params:
+        feat_sample_size: 212
+    train:
+      target: specvqgan.data.vas.VASSpecsCondOnFeatsTrain
+      params:
+        specs_dataset_cfg:
+          split_path: ./data/vas_train.txt
+        condition_dataset_cfg:
+          split_path: ./data/vas_train.txt
+    validation:
+      target: specvqgan.data.vas.VASSpecsCondOnFeatsValidation
+      params:
+        specs_dataset_cfg:
+          split_path: ./data/vas_valid.txt
+        condition_dataset_cfg:
+          split_path: ./data/vas_valid.txt
+lightning:
+  modelcheckpoint:
+    target: pytorch_lightning.callbacks.ModelCheckpoint
+    params:
+      monitor: val/loss
+      mode: min
+      save_last: null
+  callbacks:
+    image_logger:
+      target: train.ImageLogger
+      params:
+        for_specs: true
+        vocoder_cfg:
+          target: train.VocoderMelGan
+          params:
+            ckpt_vocoder: ./vocoder/logs/vggsound/
+  trainer:
+    distributed_backend: ddp
+    gpus: 3
+sampler:
+  splits:
+  - train
+  - validation
+  batch_size: 64
+  num_workers: 4
+  temperature: 1.0
+  sample_next_tok_from_pred_dist: true
+  top_k: 64
+  sampling_mode: nopix
+  samples_per_video: 2
+  model_logdir: ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l
+  config_sampler: evaluation/configs/sampler.yaml
+  now: 2024-05-05T05-22-39
+
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Going to use the checkpoint from ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/checkpoints/epoch=000016.ckpt
+Missing fields: []
+Unexpected fields: []
+Missing fields: []
+Unexpected fields: []
+Missing fields: []
+Unexpected fields: []
+Missing fields: []
+Unexpected fields: []
+Missing fields: []
+Unexpected fields: []
+Missing fields: []
+Unexpected fields: []
+Missing fields: []
+Unexpected fields: []
+Missing fields: []
+Unexpected fields: []
+USING 2 samples per video
+USING 2 samples per video
+  0%|          | 0/23 [00:00<?, ?it/s]USING 2 samples per video
+  0%|          | 0/23 [00:00<?, ?it/s]USING 2 samples per video
+USING 2 samples per video
+USING 2 samples per video  0%|          | 0/23 [00:00<?, ?it/s]
+  0%|          | 0/23 [00:00<?, ?it/s]USING 2 samples per video  0%|          | 0/23 [00:00<?, ?it/s]
+  0%|          | 0/23 [00:00<?, ?it/s]USING 2 samples per video
+  0%|          | 0/23 [00:00<?, ?it/s]  0%|          | 0/23 [00:00<?, ?it/s]  4%|▍         | 1/23 [15:57<5:50:56, 957.10s/it]  4%|▍         | 1/23 [16:01<5:52:43, 961.99s/it]  4%|▍         | 1/23 [16:11<5:56:10, 971.38s/it]  4%|▍         | 1/23 [16:13<5:56:53, 973.33s/it]  4%|▍         | 1/23 [16:21<5:59:53, 981.53s/it]  4%|▍         | 1/23 [16:22<6:00:09, 982.26s/it]  4%|▍         | 1/23 [16:24<6:00:58, 984.47s/it]  4%|▍         | 1/23 [16:29<6:02:52, 989.66s/it]  9%|▊         | 2/23 [31:52<5:34:32, 955.84s/it]  9%|▊         | 2/23 [32:02<5:36:18, 960.87s/it]  9%|▊         | 2/23 [32:20<5:39:35, 970.28s/it]  9%|▊         | 2/23 [32:24<5:40:11, 972.00s/it]  9%|▊         | 2/23 [32:40<5:43:03, 980.17s/it]  9%|▊         | 2/23 [32:46<5:44:13, 983.52s/it]  9%|▊         | 2/23 [32:46<5:44:06, 983.16s/it]  9%|▊         | 2/23 [32:56<5:45:53, 988.26s/it] 13%|█▎        | 3/23 [47:47<5:18:30, 955.53s/it] 13%|█▎        | 3/23 [48:02<5:20:10, 960.54s/it] 13%|█▎        | 3/23 [48:30<5:23:19, 969.95s/it] 13%|█▎        | 3/23 [48:35<5:23:50, 971.52s/it] 13%|█▎        | 3/23 [49:00<5:26:36, 979.83s/it] 13%|█▎        | 3/23 [49:08<5:27:34, 982.73s/it] 13%|█▎        | 3/23 [49:11<5:27:59, 983.97s/it] 13%|█▎        | 3/23 [49:24<5:29:15, 987.79s/it] 17%|█▋        | 4/23 [1:03:42<5:02:30, 955.29s/it] 17%|█▋        | 4/23 [1:04:02<5:04:07, 960.39s/it] 17%|█▋        | 4/23 [1:04:39<5:07:05, 969.74s/it] 17%|█▋        | 4/23 [1:04:46<5:07:35, 971.33s/it] 17%|█▋        | 4/23 [1:05:19<5:10:12, 979.62s/it] 17%|█▋        | 4/23 [1:05:31<5:11:10, 982.64s/it] 17%|█▋        | 4/23 [1:05:36<5:11:46, 984.56s/it] 17%|█▋        | 4/23 [1:05:51<5:12:44, 987.61s/it] 22%|██▏       | 5/23 [1:19:36<4:46:31, 955.09s/it] 22%|██▏       | 5/23 [1:20:02<4:48:03, 960.21s/it] 22%|██▏       | 5/23 [1:20:49<4:50:54, 969.68s/it] 22%|██▏       | 5/23 [1:20:57<4:51:20, 971.16s/it] 22%|██▏       | 5/23 [1:21:38<4:53:50, 979.48s/it] 22%|██▏       | 5/23 [1:21:53<4:54:45, 982.55s/it] 22%|██▏       | 5/23 [1:22:00<4:55:19, 984.40s/it] 22%|██▏       | 5/23 [1:22:18<4:56:15, 987.55s/it] 26%|██▌       | 6/23 [1:35:31<4:30:35, 955.06s/it] 26%|██▌       | 6/23 [1:36:02<4:32:04, 960.29s/it] 26%|██▌       | 6/23 [1:36:59<4:34:45, 969.76s/it] 26%|██▌       | 6/23 [1:37:08<4:35:09, 971.13s/it] 26%|██▌       | 6/23 [1:37:58<4:37:31, 979.48s/it] 26%|██▌       | 6/23 [1:38:16<4:38:23, 982.55s/it] 26%|██▌       | 6/23 [1:38:25<4:38:55, 984.44s/it] 26%|██▌       | 6/23 [1:38:46<4:39:48, 987.54s/it] 30%|███       | 7/23 [1:51:26<4:14:39, 954.98s/it] 30%|███       | 7/23 [1:52:02<4:16:03, 960.21s/it] 30%|███       | 7/23 [1:53:08<4:18:34, 969.63s/it] 30%|███       | 7/23 [1:53:18<4:18:55, 970.97s/it] 30%|███       | 7/23 [1:54:17<4:21:10, 979.41s/it] 30%|███       | 7/23 [1:54:38<4:21:58, 982.41s/it] 30%|███       | 7/23 [1:54:49<4:22:29, 984.31s/it] 30%|███       | 7/23 [1:55:13<4:23:20, 987.51s/it] 35%|███▍      | 8/23 [2:07:21<3:58:44, 955.00s/it] 35%|███▍      | 8/23 [2:08:02<4:00:01, 960.08s/it] 35%|███▍      | 8/23 [2:09:18<4:02:24, 969.62s/it] 35%|███▍      | 8/23 [2:09:29<4:02:42, 970.84s/it] 35%|███▍      | 8/23 [2:10:36<4:04:50, 979.39s/it] 35%|███▍      | 8/23 [2:11:00<4:05:35, 982.39s/it] 35%|███▍      | 8/23 [2:11:13<4:06:04, 984.28s/it] 35%|███▍      | 8/23 [2:11:41<4:06:51, 987.42s/it] 39%|███▉      | 9/23 [2:23:16<3:42:49, 954.98s/it] 39%|███▉      | 9/23 [2:24:02<3:44:01, 960.08s/it] 39%|███▉      | 9/23 [2:25:28<3:46:14, 969.64s/it] 39%|███▉      | 9/23 [2:25:39<3:46:30, 970.72s/it] 39%|███▉      | 9/23 [2:26:56<3:48:31, 979.40s/it] 39%|███▉      | 9/23 [2:27:23<3:49:12, 982.36s/it] 39%|███▉      | 9/23 [2:27:41<3:49:56, 985.48s/it] 39%|███▉      | 9/23 [2:28:08<3:50:22, 987.35s/it] 43%|████▎     | 10/23 [2:39:11<3:26:53, 954.89s/it] 43%|████▎     | 10/23 [2:40:02<3:27:59, 959.97s/it] 43%|████▎     | 10/23 [2:41:37<3:30:03, 969.48s/it] 43%|████▎     | 10/23 [2:41:50<3:30:17, 970.58s/it] 43%|████▎     | 10/23 [2:43:15<3:32:11, 979.32s/it] 43%|████▎     | 10/23 [2:43:44<3:32:48, 982.20s/it] 43%|████▎     | 10/23 [2:44:05<3:33:26, 985.09s/it] 43%|████▎     | 10/23 [2:44:35<3:33:55, 987.33s/it] 48%|████▊     | 11/23 [2:55:06<3:10:58, 954.85s/it] 48%|████▊     | 11/23 [2:56:02<3:11:59, 959.93s/it] 48%|████▊     | 11/23 [2:57:46<3:13:53, 969.46s/it] 48%|████▊     | 11/23 [2:58:00<3:14:05, 970.48s/it] 48%|████▊     | 11/23 [2:59:34<3:15:51, 979.26s/it] 48%|████▊     | 11/23 [3:00:06<3:16:25, 982.14s/it] 48%|████▊     | 11/23 [3:00:26<3:16:43, 983.66s/it] 48%|████▊     | 11/23 [3:01:02<3:17:26, 987.24s/it] 52%|█████▏    | 12/23 [3:11:01<2:55:04, 954.92s/it] 52%|█████▏    | 12/23 [3:12:02<2:55:58, 959.90s/it] 52%|█████▏    | 12/23 [3:13:55<2:57:43, 969.39s/it] 52%|█████▏    | 12/23 [3:14:10<2:57:55, 970.46s/it] 52%|█████▏    | 12/23 [3:15:53<2:59:31, 979.26s/it] 52%|█████▏    | 12/23 [3:16:29<3:00:03, 982.13s/it] 52%|█████▏    | 12/23 [3:16:49<3:00:20, 983.66s/it] 52%|█████▏    | 12/23 [3:17:29<3:00:58, 987.18s/it] 57%|█████▋    | 13/23 [3:26:56<2:39:08, 954.89s/it] 57%|█████▋    | 13/23 [3:28:02<2:39:59, 959.93s/it] 57%|█████▋    | 13/23 [3:30:05<2:41:34, 969.41s/it] 57%|█████▋    | 13/23 [3:30:21<2:41:44, 970.42s/it] 57%|█████▋    | 13/23 [3:32:13<2:43:12, 979.27s/it] 57%|█████▋    | 13/23 [3:32:51<2:43:41, 982.15s/it] 57%|█████▋    | 13/23 [3:33:18<2:44:10, 985.01s/it] 57%|█████▋    | 13/23 [3:33:56<2:44:31, 987.16s/it] 61%|██████    | 14/23 [3:42:50<2:23:13, 954.78s/it] 61%|██████    | 14/23 [3:44:01<2:23:59, 959.90s/it] 61%|██████    | 14/23 [3:46:14<2:25:25, 969.45s/it] 61%|██████    | 14/23 [3:46:31<2:25:34, 970.45s/it] 61%|██████    | 14/23 [3:48:32<2:26:53, 979.27s/it] 61%|██████    | 14/23 [3:49:13<2:27:19, 982.15s/it] 61%|██████    | 14/23 [3:49:42<2:27:43, 984.84s/it] 61%|██████    | 14/23 [3:50:23<2:28:04, 987.16s/it] 65%|██████▌   | 15/23 [3:58:46<2:07:20, 955.04s/it] 65%|██████▌   | 15/23 [4:00:02<2:08:01, 960.16s/it] 65%|██████▌   | 15/23 [4:02:25<2:09:18, 969.80s/it] 65%|██████▌   | 15/23 [4:02:43<2:09:26, 970.82s/it] 65%|██████▌   | 15/23 [4:04:52<2:10:35, 979.48s/it] 65%|██████▌   | 15/23 [4:05:36<2:11:00, 982.52s/it] 65%|██████▌   | 15/23 [4:06:11<2:11:28, 986.12s/it] 65%|██████▌   | 15/23 [4:06:51<2:11:39, 987.40s/it] 70%|██████▉   | 16/23 [4:14:42<1:51:27, 955.39s/it] 70%|██████▉   | 16/23 [4:16:03<1:52:03, 960.51s/it] 70%|██████▉   | 16/23 [4:18:36<1:53:11, 970.15s/it] 70%|██████▉   | 16/23 [4:18:55<1:53:18, 971.18s/it] 70%|██████▉   | 16/23 [4:21:12<1:54:18, 979.83s/it] 70%|██████▉   | 16/23 [4:22:00<1:54:40, 982.97s/it] 70%|██████▉   | 16/23 [4:22:41<1:55:09, 987.12s/it] 70%|██████▉   | 16/23 [4:23:20<1:55:14, 987.74s/it] 74%|███████▍  | 17/23 [4:30:38<1:35:34, 955.68s/it] 74%|███████▍  | 17/23 [4:32:05<1:36:05, 960.85s/it] 74%|███████▍  | 17/23 [4:34:47<1:37:02, 970.41s/it] 74%|███████▍  | 17/23 [4:35:07<1:37:09, 971.51s/it] 74%|███████▍  | 17/23 [4:37:34<1:38:01, 980.23s/it] 74%|███████▍  | 17/23 [4:38:25<1:38:20, 983.34s/it] 74%|███████▍  | 17/23 [4:39:07<1:38:41, 986.95s/it] 74%|███████▍  | 17/23 [4:39:49<1:38:48, 988.02s/it] 78%|███████▊  | 18/23 [4:46:35<1:19:39, 955.87s/it] 78%|███████▊  | 18/23 [4:48:07<1:20:05, 961.08s/it] 78%|███████▊  | 18/23 [4:50:58<1:20:53, 970.71s/it] 78%|███████▊  | 18/23 [4:51:19<1:20:58, 971.74s/it] 78%|███████▊  | 18/23 [4:53:55<1:21:42, 980.54s/it] 78%|███████▊  | 18/23 [4:54:49<1:21:58, 983.66s/it] 78%|███████▊  | 18/23 [4:55:37<1:22:18, 987.74s/it] 78%|███████▊  | 18/23 [4:56:17<1:22:21, 988.23s/it] 83%|████████▎ | 19/23 [5:02:31<1:03:44, 956.03s/it] 83%|████████▎ | 19/23 [5:04:08<1:04:04, 961.22s/it] 83%|████████▎ | 19/23 [5:07:10<1:04:43, 970.88s/it] 83%|████████▎ | 19/23 [5:07:32<1:04:47, 971.87s/it] 83%|████████▎ | 19/23 [5:10:16<1:05:22, 980.61s/it] 83%|████████▎ | 19/23 [5:11:13<1:05:34, 983.74s/it] 83%|████████▎ | 19/23 [5:12:03<1:05:48, 987.21s/it] 83%|████████▎ | 19/23 [5:12:46<1:05:53, 988.34s/it] 87%|████████▋ | 20/23 [5:18:27<47:48, 956.04s/it]   87%|████████▋ | 20/23 [5:20:10<48:03, 961.23s/it]   87%|████████▋ | 20/23 [5:23:21<48:32, 970.95s/it]   87%|████████▋ | 20/23 [5:23:44<48:35, 971.89s/it]   87%|████████▋ | 20/23 [5:26:36<49:01, 980.60s/it]   87%|████████▋ | 20/23 [5:27:37<49:11, 983.79s/it]   87%|████████▋ | 20/23 [5:28:32<49:23, 987.88s/it]   87%|████████▋ | 20/23 [5:29:14<49:24, 988.30s/it]   91%|█████████▏| 21/23 [5:34:22<31:51, 955.73s/it] 91%|█████████▏| 21/23 [5:36:10<32:01, 960.87s/it] 91%|█████████▏| 21/23 [5:39:31<32:21, 970.65s/it] 91%|█████████▏| 21/23 [5:39:54<32:23, 971.58s/it] 91%|█████████▏| 21/23 [5:42:56<32:40, 980.27s/it] 91%|█████████▏| 21/23 [5:43:59<32:46, 983.38s/it] 91%|█████████▏| 21/23 [5:44:56<32:53, 986.84s/it] 91%|█████████▏| 21/23 [5:45:42<32:56, 988.10s/it] 96%|█████████▌| 22/23 [5:50:17<15:55, 955.41s/it] 96%|█████████▌| 22/23 [5:52:09<16:00, 960.58s/it] 96%|█████████▌| 22/23 [5:55:40<16:10, 970.31s/it] 96%|█████████▌| 22/23 [5:56:05<16:11, 971.30s/it] 96%|█████████▌| 22/23 [5:59:15<16:20, 980.03s/it] 96%|█████████▌| 22/23 [6:00:22<16:23, 983.18s/it] 96%|█████████▌| 22/23 [6:01:25<16:27, 987.32s/it] 96%|█████████▌| 22/23 [6:02:09<16:27, 987.90s/it]100%|██████████| 23/23 [6:06:12<00:00, 955.29s/it]100%|██████████| 23/23 [6:06:12<00:00, 955.31s/it]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 23/23 [6:08:10<00:00, 960.44s/it]100%|██████████| 23/23 [6:08:10<00:00, 960.44s/it]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 23/23 [6:11:50<00:00, 970.15s/it]100%|██████████| 23/23 [6:11:50<00:00, 970.02s/it]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 23/23 [6:12:16<00:00, 971.15s/it]100%|██████████| 23/23 [6:12:16<00:00, 971.15s/it]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 23/23 [6:15:35<00:00, 979.87s/it]100%|██████████| 23/23 [6:15:35<00:00, 979.79s/it]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 23/23 [6:16:45<00:00, 983.02s/it]100%|██████████| 23/23 [6:16:45<00:00, 982.83s/it]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 23/23 [6:17:53<00:00, 987.60s/it]100%|██████████| 23/23 [6:17:53<00:00, 985.81s/it]
+  0%|          | 0/2 [00:00<?, ?it/s]100%|██████████| 23/23 [6:18:37<00:00, 987.78s/it]100%|██████████| 23/23 [6:18:37<00:00, 987.71s/it]
+  0%|          | 0/2 [00:00<?, ?it/s] 50%|█████     | 1/2 [15:54<15:54, 954.96s/it] 50%|█████     | 1/2 [16:00<16:00, 960.22s/it] 50%|█████     | 1/2 [16:09<16:09, 969.63s/it] 50%|█████     | 1/2 [16:10<16:10, 970.97s/it]100%|██████████| 2/2 [23:49<00:00, 672.44s/it]100%|██████████| 2/2 [23:49<00:00, 714.82s/it]
+ 50%|█████     | 1/2 [16:19<16:19, 979.41s/it]100%|██████████| 2/2 [23:57<00:00, 675.97s/it]100%|██████████| 2/2 [23:57<00:00, 718.61s/it]
+ 50%|█████     | 1/2 [16:22<16:22, 982.67s/it] 50%|█████     | 1/2 [16:18<16:18, 978.63s/it] 50%|█████     | 1/2 [16:27<16:27, 987.62s/it]100%|██████████| 2/2 [24:11<00:00, 682.63s/it]100%|██████████| 2/2 [24:11<00:00, 725.68s/it]
+100%|██████████| 2/2 [24:13<00:00, 683.81s/it]100%|██████████| 2/2 [24:13<00:00, 726.88s/it]
+100%|██████████| 2/2 [24:26<00:00, 689.75s/it]100%|██████████| 2/2 [24:26<00:00, 733.20s/it]
+100%|██████████| 2/2 [24:31<00:00, 692.05s/it]100%|██████████| 2/2 [24:31<00:00, 735.64s/it]
+100%|██████████| 2/2 [24:24<00:00, 688.52s/it]100%|██████████| 2/2 [24:24<00:00, 732.03s/it]
+100%|██████████| 2/2 [24:39<00:00, 696.02s/it]100%|██████████| 2/2 [24:39<00:00, 739.77s/it]
+/home/beimukvo/.conda/envs/specvqgan-updated/lib/python3.8/site-packages/torch/distributed/launch.py:183: FutureWarning: The module torch.distributed.launch is deprecated
+and will be removed in future. Use torchrun.
+Note that --use-env is set by default in torchrun.
+If your script expects `--local-rank` argument to be set, please
+change it to read from `os.environ['LOCAL_RANK']` instead. See 
+https://pytorch.org/docs/stable/distributed.html#launch-utility for 
+further instructions
+
+  warnings.warn(
+[2024-05-05 12:06:05,091] torch.distributed.run: [WARNING] 
+[2024-05-05 12:06:05,091] torch.distributed.run: [WARNING] *****************************************
+[2024-05-05 12:06:05,091] torch.distributed.run: [WARNING] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+[2024-05-05 12:06:05,091] torch.distributed.run: [WARNING] *****************************************
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched specs_dir: ./data/vggsound/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+
+Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+
+Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched spec_dir_path: ./data/vas/features/*/melspec_10s_22050hz --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ./data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+Patched specs_dir: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched spec_dir_path: data/vas/features/*/melspec_10s_22050hz/ --> data/vas/features/*/melspec_10s_22050hz/
+Patched rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/ --> ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+WORLDSIZE 8 – RANK 5
+WORLDSIZE 8 – RANK 1
+WORLDSIZE 8 – RANK 2
+WORLDSIZE 8 – RANK 4
+WORLDSIZE 8 – RANK 6
+WORLDSIZE 8 – RANK 3
+WORLDSIZE 8 – RANK 7
+WORLDSIZE 8 – RANK 0
+MASTER: dgx1-02 : 49817
+device: cuda:0
+have_isc: true
+have_fid: true
+have_kid: true
+have_kl: true
+isc_cfg:
+  feat_layer_name: logits_unbiased
+  splits: 10
+  samples_shuffle: true
+  rng_seed: 2020
+fid_cfg:
+  feat_layer_name: '2048'
+kid_cfg:
+  feat_layer_name: '2048'
+  subsets: 100
+  subset_size: 1000
+  degree: 3
+  gamma: None
+  coef0: 1
+  rng_seed: 2020
+kl_cfg:
+  feat_layer_name: logits
+  dataset_name: vas
+  classes:
+  - baby
+  - cough
+  - dog
+  - drum
+  - fireworks
+  - gun
+  - hammer
+  - sneeze
+extraction_cfg:
+  batch_size: 128
+  save_cpu_ram: false
+feature_extractor:
+  target: evaluation.feature_extractors.melception.Melception
+  params:
+    num_classes: 309
+    features_list:
+    - logits_unbiased
+    - '2048'
+    - logits
+    feature_extractor_weights_path: ./evaluation/logs/21-05-10T09-28-40/melception-21-05-10T09-28-40.pt
+input1:
+  target: evaluation.datasets.fakes.FakesFolder
+  params:
+    root: ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l/samples_2024-05-05T05-22-39/VAS_validation
+    extensions: .npy
+  transform_dset_out_to_inception_in:
+  - target: evaluation.datasets.transforms.GetInputFromBatchByKey
+    params:
+      input_key: image
+  - target: specvqgan.modules.losses.vggishish.transforms.StandardNormalizeAudio
+    params:
+      specs_dir: data/vas/features/*/melspec_10s_22050hz/
+      cache_path: ./specvqgan/modules/losses/vggishish/data/
+  - target: evaluation.datasets.transforms.ToFloat32
+input2:
+  path_to_exp: ../SpecVQGAN/logs/2024-05-04T23-09-59_vas_transformer_fnet_l
+  key: validation
+  batch_size: 1
+  transform_dset_out_to_inception_in:
+  - target: evaluation.datasets.transforms.FromMinusOneOneToZeroOne
+  - target: specvqgan.modules.losses.vggishish.transforms.StandardNormalizeAudio
+    params:
+      specs_dir: data/vas/features/*/melspec_10s_22050hz/
+      cache_path: ./specvqgan/modules/losses/vggishish/data/
+  - target: evaluation.datasets.transforms.GetInputFromBatchByKey
+    params:
+      input_key: image
+  - target: evaluation.datasets.transforms.ToFloat32
+  exp_dataset:
+    target: train.ConditionedSpectrogramDataModuleFromConfig
+    params:
+      batch_size: 64
+      num_workers: 80
+      spec_dir_path: data/vas/features/*/melspec_10s_22050hz/
+      sample_rate: 22050
+      mel_num: 80
+      spec_len: 860
+      spec_crop_len: 848
+      random_crop: false
+      rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+      feat_depth: 1280
+      feat_len: 215
+      feat_crop_len: 212
+      feat_sampler_cfg:
+        target: specvqgan.data.vas.ResampleFrames
+        params:
+          feat_sample_size: 212
+      train:
+        target: specvqgan.data.vas.VASSpecsCondOnFeatsTrain
+        params:
+          specs_dataset_cfg:
+            split_path: ./data/vas_train.txt
+          condition_dataset_cfg:
+            split_path: ./data/vas_train.txt
+      validation:
+        target: specvqgan.data.vas.VASSpecsCondOnFeatsValidation
+        params:
+          specs_dataset_cfg:
+            split_path: ./data/vas_valid.txt
+          condition_dataset_cfg:
+            split_path: ./data/vas_valid.txt
+config: ./evaluation/configs/eval_melception_vas.yaml
+patch:
+  specs_dir: data/vas/features/*/melspec_10s_22050hz/
+  spec_dir_path: data/vas/features/*/melspec_10s_22050hz/
+  rgb_feats_dir_path: ../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_l_dim1280_21.5fps/
+
+Extracting features from input_1
+Extracting features from input_1
+Extracting features from input_1
+Extracting features from input_1
+Extracting features from input_1
+Extracting features from input_1
+Extracting features from input_1
+Extracting features from input_1
+  0%|          | 0/2 [00:00<?, ?it/s]  0%|          | 0/2 [00:00<?, ?it/s]  0%|          | 0/2 [00:00<?, ?it/s]  0%|          | 0/2 [00:00<?, ?it/s]  0%|          | 0/2 [00:00<?, ?it/s]  0%|          | 0/2 [00:00<?, ?it/s]  0%|          | 0/2 [00:00<?, ?it/s]  0%|          | 0/2 [00:00<?, ?it/s] 50%|█████     | 1/2 [00:03<00:03,  3.87s/it] 50%|█████     | 1/2 [00:03<00:03,  3.87s/it] 50%|█████     | 1/2 [00:03<00:03,  3.88s/it] 50%|█████     | 1/2 [00:03<00:03,  3.88s/it] 50%|█████     | 1/2 [00:03<00:03,  3.94s/it] 50%|█████     | 1/2 [00:03<00:03,  3.95s/it] 50%|█████     | 1/2 [00:03<00:03,  3.96s/it] 50%|█████     | 1/2 [00:03<00:03,  3.96s/it]100%|██████████| 2/2 [00:04<00:00,  2.06s/it]100%|██████████| 2/2 [00:04<00:00,  2.33s/it]
+100%|██████████| 2/2 [00:04<00:00,  2.06s/it]100%|██████████| 2/2 [00:04<00:00,  2.34s/it]
+100%|██████████| 2/2 [00:04<00:00,  2.09s/it]100%|██████████| 2/2 [00:04<00:00,  2.36s/it]
+100%|██████████| 2/2 [00:04<00:00,  2.09s/it]100%|██████████| 2/2 [00:04<00:00,  2.36s/it]
+100%|██████████| 2/2 [00:04<00:00,  2.08s/it]100%|██████████| 2/2 [00:04<00:00,  2.36s/it]
+100%|██████████| 2/2 [00:04<00:00,  2.09s/it]100%|██████████| 2/2 [00:04<00:00,  2.37s/it]
+100%|██████████| 2/2 [00:04<00:00,  2.09s/it]100%|██████████| 2/2 [00:04<00:00,  2.37s/it]
+100%|██████████| 2/2 [00:04<00:00,  2.09s/it]100%|██████████| 2/2 [00:04<00:00,  2.37s/it]
+Extracting features from input_2Extracting features from input_2Extracting features from input_2Extracting features from input_2
+
+Extracting features from input_2
+Extracting features from input_2
+
+
+Extracting features from input_2Extracting features from input_2
+
+  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]  0%|          | 0/1 [00:00<?, ?it/s]100%|██████████| 1/1 [00:02<00:00,  2.10s/it]100%|██████████| 1/1 [00:02<00:00,  2.10s/it]
+100%|██████████| 1/1 [00:02<00:00,  2.10s/it]100%|██████████| 1/1 [00:02<00:00,  2.10s/it]
+100%|██████████| 1/1 [00:02<00:00,  2.11s/it]100%|██████████| 1/1 [00:02<00:00,  2.11s/it]
+100%|██████████| 1/1 [00:02<00:00,  2.10s/it]100%|██████████| 1/1 [00:02<00:00,  2.10s/it]
+100%|██████████| 1/1 [00:02<00:00,  2.18s/it]100%|██████████| 1/1 [00:02<00:00,  2.18s/it]
+100%|██████████| 1/1 [00:02<00:00,  2.22s/it]100%|██████████| 1/1 [00:02<00:00,  2.22s/it]
+100%|██████████| 1/1 [00:02<00:00,  2.21s/it]100%|██████████| 1/1 [00:02<00:00,  2.21s/it]
+100%|██████████| 1/1 [00:02<00:00,  2.23s/it]100%|██████████| 1/1 [00:02<00:00,  2.23s/it]
+KL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sortedKL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sortedKL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sorted KL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sortedKL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sortedKL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sorted KL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sortedKL: when FakesFolder on VAS is used as a dataset, we assume the original labels were sorted to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.   to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.  to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.
+to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.
+to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.to produce the target_ids. E.g. `baby` -> `cls_0`; `cough` -> `cls_1`; `dog` -> `cls_2`.
+KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)
+
+
+KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)
+
+KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)
+KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)
+KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)KL: Assuming that `input2` is "pseudo" target and `input1` is prediction. KL(input2_i||input1_i)
+
+
+
+
+
+Computing Inception Score
+Computing Inception Score
+Computing Inception Score
+Computing Inception Score
+Computing Inception Score
+Computing Inception Score
+Computing Inception Score
+Computing Inception Score
+Computing Frechet Inception Distance
+Computing Frechet Inception Distance
+Computing Frechet Inception Distance
+Computing Frechet Inception Distance
+Computing Frechet Inception Distance
+Computing Frechet Inception Distance
+Computing Frechet Inception Distance
+Computing Frechet Inception Distance
+WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]Computing Kernel Inception Distance:   1%|          | 1/100 [00:00<00:10,  9.77subsets/s]WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]Computing Kernel Inception Distance:   2%|▏         | 2/100 [00:00<00:08, 11.44subsets/s]Computing Kernel Inception Distance:   2%|▏         | 2/100 [00:00<00:08, 11.37subsets/s]Computing Kernel Inception Distance:   3%|▎         | 3/100 [00:00<00:08, 10.81subsets/s]WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]Computing Kernel Inception Distance:   2%|▏         | 2/100 [00:00<00:08, 11.32subsets/s]Computing Kernel Inception Distance:   4%|▍         | 4/100 [00:00<00:08, 11.47subsets/s]Computing Kernel Inception Distance:   2%|▏         | 2/100 [00:00<00:08, 10.91subsets/s]Computing Kernel Inception Distance:   4%|▍         | 4/100 [00:00<00:08, 11.42subsets/s]Computing Kernel Inception Distance:   5%|▌         | 5/100 [00:00<00:08, 11.07subsets/s]WARNING: subset size (1000) is larger than feature length (768).  Using 768 for both datasets
+Computing Kernel Inception Distance:   0%|          | 0/100 [00:00<?, ?subsets/s]Computing Kernel Inception Distance:   2%|▏         | 2/100 [00:00<00:08, 10.93subsets/s]Computing Kernel Inception Distance:   4%|▍         | 4/100 [00:00<00:08, 11.39subsets/s]Computing Kernel Inception Distance:   2%|▏         | 2/100 [00:00<00:08, 11.06subsets/s]Computing Kernel Inception Distance:   6%|▌         | 6/100 [00:00<00:08, 11.42subsets/s]Computing Kernel Inception Distance:   4%|▍         | 4/100 [00:00<00:08, 11.01subsets/s]Computing Kernel Inception Distance:   6%|▌         | 6/100 [00:00<00:08, 11.43subsets/s]Computing Kernel Inception Distance:   7%|▋         | 7/100 [00:00<00:08, 11.19subsets/s]Computing Kernel Inception Distance:   2%|▏         | 2/100 [00:00<00:08, 11.08subsets/s]Computing Kernel Inception Distance:   4%|▍         | 4/100 [00:00<00:08, 11.07subsets/s]Computing Kernel Inception Distance:   6%|▌         | 6/100 [00:00<00:08, 11.41subsets/s]Computing Kernel Inception Distance:   4%|▍         | 4/100 [00:00<00:08, 11.10subsets/s]Computing Kernel Inception Distance:   8%|▊         | 8/100 [00:00<00:08, 11.46subsets/s]Computing Kernel Inception Distance:   6%|▌         | 6/100 [00:00<00:08, 11.03subsets/s]Computing Kernel Inception Distance:   8%|▊         | 8/100 [00:00<00:08, 11.44subsets/s]Computing Kernel Inception Distance:   9%|▉         | 9/100 [00:00<00:08, 11.16subsets/s]Computing Kernel Inception Distance:   4%|▍         | 4/100 [00:00<00:08, 11.01subsets/s]Computing Kernel Inception Distance:   6%|▌         | 6/100 [00:00<00:08, 11.06subsets/s]Computing Kernel Inception Distance:   8%|▊         | 8/100 [00:00<00:08, 11.41subsets/s]Computing Kernel Inception Distance:   6%|▌         | 6/100 [00:00<00:08, 11.08subsets/s]Computing Kernel Inception Distance:  10%|█         | 10/100 [00:00<00:07, 11.45subsets/s]Computing Kernel Inception Distance:   8%|▊         | 8/100 [00:00<00:08, 11.04subsets/s]Computing Kernel Inception Distance:  10%|█         | 10/100 [00:00<00:07, 11.44subsets/s]Computing Kernel Inception Distance:  11%|█         | 11/100 [00:00<00:07, 11.23subsets/s]Computing Kernel Inception Distance:   6%|▌         | 6/100 [00:00<00:08, 11.02subsets/s]Computing Kernel Inception Distance:   8%|▊         | 8/100 [00:00<00:08, 11.09subsets/s]Computing Kernel Inception Distance:  10%|█         | 10/100 [00:00<00:07, 11.41subsets/s]Computing Kernel Inception Distance:   8%|▊         | 8/100 [00:00<00:08, 11.11subsets/s]Computing Kernel Inception Distance:  12%|█▏        | 12/100 [00:01<00:07, 11.47subsets/s]Computing Kernel Inception Distance:  10%|█         | 10/100 [00:00<00:08, 11.07subsets/s]Computing Kernel Inception Distance:  12%|█▏        | 12/100 [00:01<00:07, 11.44subsets/s]Computing Kernel Inception Distance:  13%|█▎        | 13/100 [00:01<00:07, 11.35subsets/s]Computing Kernel Inception Distance:   8%|▊         | 8/100 [00:00<00:08, 11.01subsets/s]Computing Kernel Inception Distance:  10%|█         | 10/100 [00:00<00:08, 11.10subsets/s]Computing Kernel Inception Distance:  12%|█▏        | 12/100 [00:01<00:07, 11.38subsets/s]Computing Kernel Inception Distance:  10%|█         | 10/100 [00:00<00:08, 11.09subsets/s]Computing Kernel Inception Distance:  14%|█▍        | 14/100 [00:01<00:07, 11.46subsets/s]Computing Kernel Inception Distance:  12%|█▏        | 12/100 [00:01<00:07, 11.03subsets/s]Computing Kernel Inception Distance:  14%|█▍        | 14/100 [00:01<00:07, 11.43subsets/s]Computing Kernel Inception Distance:  15%|█▌        | 15/100 [00:01<00:07, 11.42subsets/s]Computing Kernel Inception Distance:  10%|█         | 10/100 [00:00<00:08, 11.02subsets/s]Computing Kernel Inception Distance:  12%|█▏        | 12/100 [00:01<00:07, 11.11subsets/s]Computing Kernel Inception Distance:  14%|█▍        | 14/100 [00:01<00:07, 11.40subsets/s]Computing Kernel Inception Distance:  12%|█▏        | 12/100 [00:01<00:07, 11.11subsets/s]Computing Kernel Inception Distance:  16%|█▌        | 16/100 [00:01<00:07, 11.46subsets/s]Computing Kernel Inception Distance:  16%|█▌        | 16/100 [00:01<00:07, 11.44subsets/s]Computing Kernel Inception Distance:  14%|█▍        | 14/100 [00:01<00:07, 11.06subsets/s]Computing Kernel Inception Distance:  17%|█▋        | 17/100 [00:01<00:07, 11.49subsets/s]Computing Kernel Inception Distance:  12%|█▏        | 12/100 [00:01<00:07, 11.03subsets/s]Computing Kernel Inception Distance:  14%|█▍        | 14/100 [00:01<00:07, 11.12subsets/s]Computing Kernel Inception Distance:  16%|█▌        | 16/100 [00:01<00:07, 11.40subsets/s]Computing Kernel Inception Distance:  14%|█▍        | 14/100 [00:01<00:07, 11.11subsets/s]Computing Kernel Inception Distance:  18%|█▊        | 18/100 [00:01<00:07, 11.47subsets/s]Computing Kernel Inception Distance:  18%|█▊        | 18/100 [00:01<00:07, 11.43subsets/s]Computing Kernel Inception Distance:  19%|█▉        | 19/100 [00:01<00:07, 11.53subsets/s]Computing Kernel Inception Distance:  16%|█▌        | 16/100 [00:01<00:07, 11.07subsets/s]Computing Kernel Inception Distance:  14%|█▍        | 14/100 [00:01<00:07, 10.98subsets/s]Computing Kernel Inception Distance:  16%|█▌        | 16/100 [00:01<00:07, 11.14subsets/s]Computing Kernel Inception Distance:  18%|█▊        | 18/100 [00:01<00:07, 11.41subsets/s]Computing Kernel Inception Distance:  16%|█▌        | 16/100 [00:01<00:07, 11.13subsets/s]Computing Kernel Inception Distance:  20%|██        | 20/100 [00:01<00:06, 11.49subsets/s]Computing Kernel Inception Distance:  20%|██        | 20/100 [00:01<00:06, 11.43subsets/s]Computing Kernel Inception Distance:  21%|██        | 21/100 [00:01<00:06, 11.55subsets/s]Computing Kernel Inception Distance:  18%|█▊        | 18/100 [00:01<00:07, 11.09subsets/s]Computing Kernel Inception Distance:  16%|█▌        | 16/100 [00:01<00:07, 10.99subsets/s]Computing Kernel Inception Distance:  18%|█▊        | 18/100 [00:01<00:07, 11.12subsets/s]Computing Kernel Inception Distance:  20%|██        | 20/100 [00:01<00:07, 11.41subsets/s]Computing Kernel Inception Distance:  18%|█▊        | 18/100 [00:01<00:07, 11.13subsets/s]Computing Kernel Inception Distance:  22%|██▏       | 22/100 [00:01<00:06, 11.48subsets/s]Computing Kernel Inception Distance:  23%|██▎       | 23/100 [00:02<00:06, 11.57subsets/s]Computing Kernel Inception Distance:  22%|██▏       | 22/100 [00:01<00:06, 11.44subsets/s]Computing Kernel Inception Distance:  20%|██        | 20/100 [00:01<00:07, 11.10subsets/s]Computing Kernel Inception Distance:  18%|█▊        | 18/100 [00:01<00:07, 11.01subsets/s]Computing Kernel Inception Distance:  22%|██▏       | 22/100 [00:01<00:06, 11.42subsets/s]Computing Kernel Inception Distance:  20%|██        | 20/100 [00:01<00:07, 11.13subsets/s]Computing Kernel Inception Distance:  20%|██        | 20/100 [00:01<00:07, 11.13subsets/s]Computing Kernel Inception Distance:  24%|██▍       | 24/100 [00:02<00:06, 11.49subsets/s]Computing Kernel Inception Distance:  25%|██▌       | 25/100 [00:02<00:06, 11.59subsets/s]Computing Kernel Inception Distance:  24%|██▍       | 24/100 [00:02<00:06, 11.45subsets/s]Computing Kernel Inception Distance:  22%|██▏       | 22/100 [00:01<00:07, 11.11subsets/s]Computing Kernel Inception Distance:  20%|██        | 20/100 [00:01<00:07, 11.03subsets/s]Computing Kernel Inception Distance:  24%|██▍       | 24/100 [00:02<00:06, 11.41subsets/s]Computing Kernel Inception Distance:  22%|██▏       | 22/100 [00:01<00:06, 11.15subsets/s]Computing Kernel Inception Distance:  26%|██▌       | 26/100 [00:02<00:06, 11.50subsets/s]Computing Kernel Inception Distance:  22%|██▏       | 22/100 [00:01<00:07, 11.14subsets/s]Computing Kernel Inception Distance:  27%|██▋       | 27/100 [00:02<00:06, 11.60subsets/s]Computing Kernel Inception Distance:  26%|██▌       | 26/100 [00:02<00:06, 11.45subsets/s]Computing Kernel Inception Distance:  24%|██▍       | 24/100 [00:02<00:06, 11.11subsets/s]Computing Kernel Inception Distance:  26%|██▌       | 26/100 [00:02<00:06, 11.41subsets/s]Computing Kernel Inception Distance:  22%|██▏       | 22/100 [00:01<00:07, 11.02subsets/s]Computing Kernel Inception Distance:  24%|██▍       | 24/100 [00:02<00:06, 11.13subsets/s]Computing Kernel Inception Distance:  28%|██▊       | 28/100 [00:02<00:06, 11.49subsets/s]Computing Kernel Inception Distance:  24%|██▍       | 24/100 [00:02<00:06, 11.12subsets/s]Computing Kernel Inception Distance:  29%|██▉       | 29/100 [00:02<00:06, 11.61subsets/s]Computing Kernel Inception Distance:  28%|██▊       | 28/100 [00:02<00:06, 11.45subsets/s]Computing Kernel Inception Distance:  26%|██▌       | 26/100 [00:02<00:06, 11.09subsets/s]Computing Kernel Inception Distance:  28%|██▊       | 28/100 [00:02<00:06, 11.40subsets/s]Computing Kernel Inception Distance:  24%|██▍       | 24/100 [00:02<00:06, 11.01subsets/s]Computing Kernel Inception Distance:  26%|██▌       | 26/100 [00:02<00:06, 11.13subsets/s]Computing Kernel Inception Distance:  30%|███       | 30/100 [00:02<00:06, 11.49subsets/s]Computing Kernel Inception Distance:  26%|██▌       | 26/100 [00:02<00:06, 11.13subsets/s]Computing Kernel Inception Distance:  31%|███       | 31/100 [00:02<00:05, 11.61subsets/s]Computing Kernel Inception Distance:  30%|███       | 30/100 [00:02<00:06, 11.44subsets/s]Computing Kernel Inception Distance:  28%|██▊       | 28/100 [00:02<00:06, 11.11subsets/s]Computing Kernel Inception Distance:  30%|███       | 30/100 [00:02<00:06, 11.40subsets/s]Computing Kernel Inception Distance:  26%|██▌       | 26/100 [00:02<00:06, 11.02subsets/s]Computing Kernel Inception Distance:  28%|██▊       | 28/100 [00:02<00:06, 11.13subsets/s]Computing Kernel Inception Distance:  32%|███▏      | 32/100 [00:02<00:05, 11.50subsets/s]Computing Kernel Inception Distance:  28%|██▊       | 28/100 [00:02<00:06, 11.12subsets/s]Computing Kernel Inception Distance:  33%|███▎      | 33/100 [00:02<00:05, 11.61subsets/s]Computing Kernel Inception Distance:  32%|███▏      | 32/100 [00:02<00:05, 11.44subsets/s]Computing Kernel Inception Distance:  30%|███       | 30/100 [00:02<00:06, 11.09subsets/s]Computing Kernel Inception Distance:  32%|███▏      | 32/100 [00:02<00:05, 11.39subsets/s]Computing Kernel Inception Distance:  28%|██▊       | 28/100 [00:02<00:06, 11.01subsets/s]Computing Kernel Inception Distance:  30%|███       | 30/100 [00:02<00:06, 11.11subsets/s]Computing Kernel Inception Distance:  34%|███▍      | 34/100 [00:02<00:05, 11.49subsets/s]Computing Kernel Inception Distance:  30%|███       | 30/100 [00:02<00:06, 11.12subsets/s]Computing Kernel Inception Distance:  35%|███▌      | 35/100 [00:03<00:05, 11.62subsets/s]Computing Kernel Inception Distance:  34%|███▍      | 34/100 [00:02<00:05, 11.43subsets/s]Computing Kernel Inception Distance:  32%|███▏      | 32/100 [00:02<00:06, 11.11subsets/s]Computing Kernel Inception Distance:  34%|███▍      | 34/100 [00:02<00:05, 11.41subsets/s]Computing Kernel Inception Distance:  30%|███       | 30/100 [00:02<00:06, 11.03subsets/s]Computing Kernel Inception Distance:  32%|███▏      | 32/100 [00:02<00:06, 11.13subsets/s]Computing Kernel Inception Distance:  36%|███▌      | 36/100 [00:03<00:05, 11.50subsets/s]Computing Kernel Inception Distance:  37%|███▋      | 37/100 [00:03<00:05, 11.63subsets/s]Computing Kernel Inception Distance:  32%|███▏      | 32/100 [00:02<00:06, 11.14subsets/s]Computing Kernel Inception Distance:  36%|███▌      | 36/100 [00:03<00:05, 11.44subsets/s]Computing Kernel Inception Distance:  34%|███▍      | 34/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  36%|███▌      | 36/100 [00:03<00:05, 11.41subsets/s]Computing Kernel Inception Distance:  32%|███▏      | 32/100 [00:02<00:06, 11.02subsets/s]Computing Kernel Inception Distance:  34%|███▍      | 34/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  38%|███▊      | 38/100 [00:03<00:05, 11.50subsets/s]Computing Kernel Inception Distance:  39%|███▉      | 39/100 [00:03<00:05, 11.63subsets/s]Computing Kernel Inception Distance:  34%|███▍      | 34/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  38%|███▊      | 38/100 [00:03<00:05, 11.44subsets/s]Computing Kernel Inception Distance:  36%|███▌      | 36/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  38%|███▊      | 38/100 [00:03<00:05, 11.41subsets/s]Computing Kernel Inception Distance:  36%|███▌      | 36/100 [00:03<00:05, 11.13subsets/s]Computing Kernel Inception Distance:  40%|████      | 40/100 [00:03<00:05, 11.49subsets/s]Computing Kernel Inception Distance:  34%|███▍      | 34/100 [00:03<00:05, 11.02subsets/s]Computing Kernel Inception Distance:  41%|████      | 41/100 [00:03<00:05, 11.63subsets/s]Computing Kernel Inception Distance:  36%|███▌      | 36/100 [00:03<00:05, 11.14subsets/s]Computing Kernel Inception Distance:  40%|████      | 40/100 [00:03<00:05, 11.43subsets/s]Computing Kernel Inception Distance:  38%|███▊      | 38/100 [00:03<00:05, 11.13subsets/s]Computing Kernel Inception Distance:  40%|████      | 40/100 [00:03<00:05, 11.40subsets/s]Computing Kernel Inception Distance:  42%|████▏     | 42/100 [00:03<00:05, 11.48subsets/s]Computing Kernel Inception Distance:  38%|███▊      | 38/100 [00:03<00:05, 11.13subsets/s]Computing Kernel Inception Distance:  36%|███▌      | 36/100 [00:03<00:05, 11.02subsets/s]Computing Kernel Inception Distance:  43%|████▎     | 43/100 [00:03<00:04, 11.62subsets/s]Computing Kernel Inception Distance:  38%|███▊      | 38/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  42%|████▏     | 42/100 [00:03<00:05, 11.42subsets/s]Computing Kernel Inception Distance:  40%|████      | 40/100 [00:03<00:05, 11.11subsets/s]Computing Kernel Inception Distance:  42%|████▏     | 42/100 [00:03<00:05, 11.39subsets/s]Computing Kernel Inception Distance:  44%|████▍     | 44/100 [00:03<00:04, 11.49subsets/s]Computing Kernel Inception Distance:  40%|████      | 40/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  38%|███▊      | 38/100 [00:03<00:05, 11.02subsets/s]Computing Kernel Inception Distance:  45%|████▌     | 45/100 [00:03<00:04, 11.62subsets/s]Computing Kernel Inception Distance:  44%|████▍     | 44/100 [00:03<00:04, 11.42subsets/s]Computing Kernel Inception Distance:  40%|████      | 40/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  42%|████▏     | 42/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  44%|████▍     | 44/100 [00:03<00:04, 11.39subsets/s]Computing Kernel Inception Distance:  46%|████▌     | 46/100 [00:04<00:04, 11.48subsets/s]Computing Kernel Inception Distance:  47%|████▋     | 47/100 [00:04<00:04, 11.62subsets/s]Computing Kernel Inception Distance:  42%|████▏     | 42/100 [00:03<00:05, 11.13subsets/s]Computing Kernel Inception Distance:  40%|████      | 40/100 [00:03<00:05, 11.04subsets/s]Computing Kernel Inception Distance:  46%|████▌     | 46/100 [00:04<00:04, 11.42subsets/s]Computing Kernel Inception Distance:  42%|████▏     | 42/100 [00:03<00:05, 11.13subsets/s]Computing Kernel Inception Distance:  44%|████▍     | 44/100 [00:03<00:05, 11.11subsets/s]Computing Kernel Inception Distance:  46%|████▌     | 46/100 [00:04<00:04, 11.40subsets/s]Computing Kernel Inception Distance:  48%|████▊     | 48/100 [00:04<00:04, 11.50subsets/s]Computing Kernel Inception Distance:  49%|████▉     | 49/100 [00:04<00:04, 11.59subsets/s]Computing Kernel Inception Distance:  44%|████▍     | 44/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  42%|████▏     | 42/100 [00:03<00:05, 11.03subsets/s]Computing Kernel Inception Distance:  48%|████▊     | 48/100 [00:04<00:04, 11.43subsets/s]Computing Kernel Inception Distance:  44%|████▍     | 44/100 [00:03<00:05, 11.12subsets/s]Computing Kernel Inception Distance:  46%|████▌     | 46/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  48%|████▊     | 48/100 [00:04<00:04, 11.41subsets/s]Computing Kernel Inception Distance:  50%|█████     | 50/100 [00:04<00:04, 11.51subsets/s]Computing Kernel Inception Distance:  51%|█████     | 51/100 [00:04<00:04, 11.60subsets/s]Computing Kernel Inception Distance:  46%|████▌     | 46/100 [00:04<00:04, 11.14subsets/s]Computing Kernel Inception Distance:  44%|████▍     | 44/100 [00:03<00:05, 11.05subsets/s]Computing Kernel Inception Distance:  50%|█████     | 50/100 [00:04<00:04, 11.43subsets/s]Computing Kernel Inception Distance:  46%|████▌     | 46/100 [00:04<00:04, 11.14subsets/s]Computing Kernel Inception Distance:  48%|████▊     | 48/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  50%|█████     | 50/100 [00:04<00:04, 11.41subsets/s]Computing Kernel Inception Distance:  52%|█████▏    | 52/100 [00:04<00:04, 11.51subsets/s]Computing Kernel Inception Distance:  53%|█████▎    | 53/100 [00:04<00:04, 11.61subsets/s]Computing Kernel Inception Distance:  48%|████▊     | 48/100 [00:04<00:04, 11.13subsets/s]Computing Kernel Inception Distance:  46%|████▌     | 46/100 [00:04<00:04, 11.04subsets/s]Computing Kernel Inception Distance:  52%|█████▏    | 52/100 [00:04<00:04, 11.44subsets/s]Computing Kernel Inception Distance:  48%|████▊     | 48/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  52%|█████▏    | 52/100 [00:04<00:04, 11.41subsets/s]Computing Kernel Inception Distance:  50%|█████     | 50/100 [00:04<00:04, 11.11subsets/s]Computing Kernel Inception Distance:  54%|█████▍    | 54/100 [00:04<00:03, 11.51subsets/s]Computing Kernel Inception Distance:  55%|█████▌    | 55/100 [00:04<00:03, 11.61subsets/s]Computing Kernel Inception Distance:  50%|█████     | 50/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  48%|████▊     | 48/100 [00:04<00:04, 11.03subsets/s]Computing Kernel Inception Distance:  54%|█████▍    | 54/100 [00:04<00:04, 11.43subsets/s]Computing Kernel Inception Distance:  50%|█████     | 50/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  54%|█████▍    | 54/100 [00:04<00:04, 11.37subsets/s]Computing Kernel Inception Distance:  52%|█████▏    | 52/100 [00:04<00:04, 11.10subsets/s]Computing Kernel Inception Distance:  56%|█████▌    | 56/100 [00:04<00:03, 11.51subsets/s]Computing Kernel Inception Distance:  57%|█████▋    | 57/100 [00:04<00:03, 11.62subsets/s]Computing Kernel Inception Distance:  52%|█████▏    | 52/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  56%|█████▌    | 56/100 [00:04<00:03, 11.44subsets/s]Computing Kernel Inception Distance:  50%|█████     | 50/100 [00:04<00:04, 11.02subsets/s]Computing Kernel Inception Distance:  52%|█████▏    | 52/100 [00:04<00:04, 11.11subsets/s]Computing Kernel Inception Distance:  56%|█████▌    | 56/100 [00:04<00:03, 11.38subsets/s]Computing Kernel Inception Distance:  54%|█████▍    | 54/100 [00:04<00:04, 11.10subsets/s]Computing Kernel Inception Distance:  58%|█████▊    | 58/100 [00:05<00:03, 11.45subsets/s]Computing Kernel Inception Distance:  59%|█████▉    | 59/100 [00:05<00:03, 11.60subsets/s]Computing Kernel Inception Distance:  54%|█████▍    | 54/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  58%|█████▊    | 58/100 [00:05<00:03, 11.42subsets/s]Computing Kernel Inception Distance:  52%|█████▏    | 52/100 [00:04<00:04, 11.01subsets/s]Computing Kernel Inception Distance:  54%|█████▍    | 54/100 [00:04<00:04, 11.12subsets/s]Computing Kernel Inception Distance:  58%|█████▊    | 58/100 [00:05<00:03, 11.36subsets/s]Computing Kernel Inception Distance:  56%|█████▌    | 56/100 [00:05<00:03, 11.11subsets/s]Computing Kernel Inception Distance:  60%|██████    | 60/100 [00:05<00:03, 11.45subsets/s]Computing Kernel Inception Distance:  61%|██████    | 61/100 [00:05<00:03, 11.59subsets/s]Computing Kernel Inception Distance:  56%|█████▌    | 56/100 [00:05<00:03, 11.14subsets/s]Computing Kernel Inception Distance:  60%|██████    | 60/100 [00:05<00:03, 11.42subsets/s]Computing Kernel Inception Distance:  54%|█████▍    | 54/100 [00:04<00:04, 11.04subsets/s]Computing Kernel Inception Distance:  56%|█████▌    | 56/100 [00:05<00:03, 11.14subsets/s]Computing Kernel Inception Distance:  60%|██████    | 60/100 [00:05<00:03, 11.39subsets/s]Computing Kernel Inception Distance:  58%|█████▊    | 58/100 [00:05<00:03, 11.11subsets/s]Computing Kernel Inception Distance:  62%|██████▏   | 62/100 [00:05<00:03, 11.47subsets/s]Computing Kernel Inception Distance:  63%|██████▎   | 63/100 [00:05<00:03, 11.61subsets/s]Computing Kernel Inception Distance:  62%|██████▏   | 62/100 [00:05<00:03, 11.42subsets/s]Computing Kernel Inception Distance:  58%|█████▊    | 58/100 [00:05<00:03, 11.13subsets/s]Computing Kernel Inception Distance:  56%|█████▌    | 56/100 [00:05<00:03, 11.03subsets/s]Computing Kernel Inception Distance:  58%|█████▊    | 58/100 [00:05<00:03, 11.12subsets/s]Computing Kernel Inception Distance:  62%|██████▏   | 62/100 [00:05<00:03, 11.40subsets/s]Computing Kernel Inception Distance:  65%|██████▌   | 65/100 [00:05<00:03, 11.61subsets/s]Computing Kernel Inception Distance:  64%|██████▍   | 64/100 [00:05<00:03, 11.47subsets/s]Computing Kernel Inception Distance:  60%|██████    | 60/100 [00:05<00:03, 11.11subsets/s]Computing Kernel Inception Distance:  64%|██████▍   | 64/100 [00:05<00:03, 11.44subsets/s]Computing Kernel Inception Distance:  60%|██████    | 60/100 [00:05<00:03, 11.14subsets/s]Computing Kernel Inception Distance:  58%|█████▊    | 58/100 [00:05<00:03, 11.04subsets/s]Computing Kernel Inception Distance:  60%|██████    | 60/100 [00:05<00:03, 11.13subsets/s]Computing Kernel Inception Distance:  64%|██████▍   | 64/100 [00:05<00:03, 11.41subsets/s]Computing Kernel Inception Distance:  67%|██████▋   | 67/100 [00:05<00:02, 11.60subsets/s]Computing Kernel Inception Distance:  66%|██████▌   | 66/100 [00:05<00:02, 11.47subsets/s]Computing Kernel Inception Distance:  62%|██████▏   | 62/100 [00:05<00:03, 11.11subsets/s]Computing Kernel Inception Distance:  66%|██████▌   | 66/100 [00:05<00:02, 11.43subsets/s]Computing Kernel Inception Distance:  62%|██████▏   | 62/100 [00:05<00:03, 11.11subsets/s]Computing Kernel Inception Distance:  60%|██████    | 60/100 [00:05<00:03, 11.02subsets/s]Computing Kernel Inception Distance:  62%|██████▏   | 62/100 [00:05<00:03, 11.10subsets/s]Computing Kernel Inception Distance:  66%|██████▌   | 66/100 [00:05<00:02, 11.41subsets/s]Computing Kernel Inception Distance:  69%|██████▉   | 69/100 [00:05<00:02, 11.60subsets/s]Computing Kernel Inception Distance:  68%|██████▊   | 68/100 [00:05<00:02, 11.48subsets/s]Computing Kernel Inception Distance:  64%|██████▍   | 64/100 [00:05<00:03, 11.09subsets/s]Computing Kernel Inception Distance:  68%|██████▊   | 68/100 [00:05<00:02, 11.44subsets/s]Computing Kernel Inception Distance:  64%|██████▍   | 64/100 [00:05<00:03, 11.12subsets/s]Computing Kernel Inception Distance:  62%|██████▏   | 62/100 [00:05<00:03, 11.03subsets/s]Computing Kernel Inception Distance:  64%|██████▍   | 64/100 [00:05<00:03, 11.12subsets/s]Computing Kernel Inception Distance:  68%|██████▊   | 68/100 [00:05<00:02, 11.42subsets/s]Computing Kernel Inception Distance:  71%|███████   | 71/100 [00:06<00:02, 11.62subsets/s]Computing Kernel Inception Distance:  70%|███████   | 70/100 [00:06<00:02, 11.49subsets/s]Computing Kernel Inception Distance:  66%|██████▌   | 66/100 [00:05<00:03, 11.12subsets/s]Computing Kernel Inception Distance:  70%|███████   | 70/100 [00:06<00:02, 11.46subsets/s]Computing Kernel Inception Distance:  66%|██████▌   | 66/100 [00:05<00:03, 11.14subsets/s]Computing Kernel Inception Distance:  64%|██████▍   | 64/100 [00:05<00:03, 11.05subsets/s]Computing Kernel Inception Distance:  66%|██████▌   | 66/100 [00:05<00:03, 11.13subsets/s]Computing Kernel Inception Distance:  70%|███████   | 70/100 [00:06<00:02, 11.43subsets/s]Computing Kernel Inception Distance:  73%|███████▎  | 73/100 [00:06<00:02, 11.63subsets/s]Computing Kernel Inception Distance:  72%|███████▏  | 72/100 [00:06<00:02, 11.51subsets/s]Computing Kernel Inception Distance:  68%|██████▊   | 68/100 [00:06<00:02, 11.11subsets/s]Computing Kernel Inception Distance:  72%|███████▏  | 72/100 [00:06<00:02, 11.46subsets/s]Computing Kernel Inception Distance:  68%|██████▊   | 68/100 [00:06<00:02, 11.12subsets/s]Computing Kernel Inception Distance:  66%|██████▌   | 66/100 [00:05<00:03, 11.04subsets/s]Computing Kernel Inception Distance:  68%|██████▊   | 68/100 [00:06<00:02, 11.09subsets/s]Computing Kernel Inception Distance:  72%|███████▏  | 72/100 [00:06<00:02, 11.44subsets/s]Computing Kernel Inception Distance:  75%|███████▌  | 75/100 [00:06<00:02, 11.64subsets/s]Computing Kernel Inception Distance:  74%|███████▍  | 74/100 [00:06<00:02, 11.52subsets/s]Computing Kernel Inception Distance:  70%|███████   | 70/100 [00:06<00:02, 11.09subsets/s]Computing Kernel Inception Distance:  74%|███████▍  | 74/100 [00:06<00:02, 11.47subsets/s]Computing Kernel Inception Distance:  70%|███████   | 70/100 [00:06<00:02, 11.14subsets/s]Computing Kernel Inception Distance:  68%|██████▊   | 68/100 [00:06<00:02, 11.06subsets/s]Computing Kernel Inception Distance:  70%|███████   | 70/100 [00:06<00:02, 11.12subsets/s]Computing Kernel Inception Distance:  74%|███████▍  | 74/100 [00:06<00:02, 11.44subsets/s]Computing Kernel Inception Distance:  77%|███████▋  | 77/100 [00:06<00:01, 11.64subsets/s]Computing Kernel Inception Distance:  76%|███████▌  | 76/100 [00:06<00:02, 11.51subsets/s]Computing Kernel Inception Distance:  72%|███████▏  | 72/100 [00:06<00:02, 11.10subsets/s]Computing Kernel Inception Distance:  76%|███████▌  | 76/100 [00:06<00:02, 11.48subsets/s]Computing Kernel Inception Distance:  72%|███████▏  | 72/100 [00:06<00:02, 11.13subsets/s]Computing Kernel Inception Distance:  70%|███████   | 70/100 [00:06<00:02, 11.04subsets/s]Computing Kernel Inception Distance:  72%|███████▏  | 72/100 [00:06<00:02, 11.11subsets/s]Computing Kernel Inception Distance:  79%|███████▉  | 79/100 [00:06<00:01, 11.64subsets/s]Computing Kernel Inception Distance:  76%|███████▌  | 76/100 [00:06<00:02, 11.43subsets/s]Computing Kernel Inception Distance:  78%|███████▊  | 78/100 [00:06<00:01, 11.51subsets/s]Computing Kernel Inception Distance:  74%|███████▍  | 74/100 [00:06<00:02, 11.09subsets/s]Computing Kernel Inception Distance:  78%|███████▊  | 78/100 [00:06<00:01, 11.47subsets/s]Computing Kernel Inception Distance:  74%|███████▍  | 74/100 [00:06<00:02, 11.13subsets/s]Computing Kernel Inception Distance:  72%|███████▏  | 72/100 [00:06<00:02, 11.05subsets/s]Computing Kernel Inception Distance:  74%|███████▍  | 74/100 [00:06<00:02, 11.13subsets/s]Computing Kernel Inception Distance:  81%|████████  | 81/100 [00:07<00:01, 11.63subsets/s]Computing Kernel Inception Distance:  78%|███████▊  | 78/100 [00:06<00:01, 11.43subsets/s]Computing Kernel Inception Distance:  80%|████████  | 80/100 [00:06<00:01, 11.51subsets/s]Computing Kernel Inception Distance:  76%|███████▌  | 76/100 [00:06<00:02, 11.10subsets/s]Computing Kernel Inception Distance:  80%|████████  | 80/100 [00:06<00:01, 11.46subsets/s]Computing Kernel Inception Distance:  76%|███████▌  | 76/100 [00:06<00:02, 11.14subsets/s]Computing Kernel Inception Distance:  74%|███████▍  | 74/100 [00:06<00:02, 11.04subsets/s]Computing Kernel Inception Distance:  83%|████████▎ | 83/100 [00:07<00:01, 11.63subsets/s]Computing Kernel Inception Distance:  76%|███████▌  | 76/100 [00:06<00:02, 11.13subsets/s]Computing Kernel Inception Distance:  80%|████████  | 80/100 [00:07<00:01, 11.43subsets/s]Computing Kernel Inception Distance:  82%|████████▏ | 82/100 [00:07<00:01, 11.52subsets/s]Computing Kernel Inception Distance:  78%|███████▊  | 78/100 [00:07<00:01, 11.09subsets/s]Computing Kernel Inception Distance:  82%|████████▏ | 82/100 [00:07<00:01, 11.47subsets/s]Computing Kernel Inception Distance:  78%|███████▊  | 78/100 [00:07<00:01, 11.13subsets/s]Computing Kernel Inception Distance:  76%|███████▌  | 76/100 [00:06<00:02, 11.04subsets/s]Computing Kernel Inception Distance:  85%|████████▌ | 85/100 [00:07<00:01, 11.64subsets/s]Computing Kernel Inception Distance:  78%|███████▊  | 78/100 [00:07<00:01, 11.14subsets/s]Computing Kernel Inception Distance:  82%|████████▏ | 82/100 [00:07<00:01, 11.44subsets/s]Computing Kernel Inception Distance:  84%|████████▍ | 84/100 [00:07<00:01, 11.52subsets/s]Computing Kernel Inception Distance:  84%|████████▍ | 84/100 [00:07<00:01, 11.46subsets/s]Computing Kernel Inception Distance:  80%|████████  | 80/100 [00:07<00:01, 11.10subsets/s]Computing Kernel Inception Distance:  80%|████████  | 80/100 [00:07<00:01, 11.14subsets/s]Computing Kernel Inception Distance:  87%|████████▋ | 87/100 [00:07<00:01, 11.63subsets/s]Computing Kernel Inception Distance:  78%|███████▊  | 78/100 [00:07<00:01, 11.04subsets/s]Computing Kernel Inception Distance:  84%|████████▍ | 84/100 [00:07<00:01, 11.43subsets/s]Computing Kernel Inception Distance:  80%|████████  | 80/100 [00:07<00:01, 11.15subsets/s]Computing Kernel Inception Distance:  86%|████████▌ | 86/100 [00:07<00:01, 11.53subsets/s]Computing Kernel Inception Distance:  86%|████████▌ | 86/100 [00:07<00:01, 11.45subsets/s]Computing Kernel Inception Distance:  82%|████████▏ | 82/100 [00:07<00:01, 11.08subsets/s]Computing Kernel Inception Distance:  82%|████████▏ | 82/100 [00:07<00:01, 11.12subsets/s]Computing Kernel Inception Distance:  89%|████████▉ | 89/100 [00:07<00:00, 11.57subsets/s]Computing Kernel Inception Distance:  86%|████████▌ | 86/100 [00:07<00:01, 11.43subsets/s]Computing Kernel Inception Distance:  80%|████████  | 80/100 [00:07<00:01, 11.02subsets/s]Computing Kernel Inception Distance:  88%|████████▊ | 88/100 [00:07<00:01, 11.51subsets/s]Computing Kernel Inception Distance:  82%|████████▏ | 82/100 [00:07<00:01, 11.13subsets/s]Computing Kernel Inception Distance:  88%|████████▊ | 88/100 [00:07<00:01, 11.45subsets/s]Computing Kernel Inception Distance:  84%|████████▍ | 84/100 [00:07<00:01, 11.09subsets/s]Computing Kernel Inception Distance:  84%|████████▍ | 84/100 [00:07<00:01, 11.12subsets/s]Computing Kernel Inception Distance:  91%|█████████ | 91/100 [00:07<00:00, 11.57subsets/s]Computing Kernel Inception Distance:  88%|████████▊ | 88/100 [00:07<00:01, 11.41subsets/s]Computing Kernel Inception Distance:  90%|█████████ | 90/100 [00:07<00:00, 11.50subsets/s]Computing Kernel Inception Distance:  82%|████████▏ | 82/100 [00:07<00:01, 11.03subsets/s]Computing Kernel Inception Distance:  84%|████████▍ | 84/100 [00:07<00:01, 11.14subsets/s]Computing Kernel Inception Distance:  90%|█████████ | 90/100 [00:07<00:00, 11.45subsets/s]Computing Kernel Inception Distance:  86%|████████▌ | 86/100 [00:07<00:01, 11.09subsets/s]Computing Kernel Inception Distance:  86%|████████▌ | 86/100 [00:07<00:01, 11.13subsets/s]Computing Kernel Inception Distance:  93%|█████████▎| 93/100 [00:08<00:00, 11.59subsets/s]Computing Kernel Inception Distance:  90%|█████████ | 90/100 [00:07<00:00, 11.41subsets/s]Computing Kernel Inception Distance:  92%|█████████▏| 92/100 [00:08<00:00, 11.51subsets/s]Computing Kernel Inception Distance:  84%|████████▍ | 84/100 [00:07<00:01, 11.03subsets/s]Computing Kernel Inception Distance:  86%|████████▌ | 86/100 [00:07<00:01, 11.14subsets/s]Computing Kernel Inception Distance:  92%|█████████▏| 92/100 [00:08<00:00, 11.46subsets/s]Computing Kernel Inception Distance:  88%|████████▊ | 88/100 [00:07<00:01, 11.09subsets/s]Computing Kernel Inception Distance:  95%|█████████▌| 95/100 [00:08<00:00, 11.61subsets/s]Computing Kernel Inception Distance:  88%|████████▊ | 88/100 [00:07<00:01, 11.13subsets/s]Computing Kernel Inception Distance:  92%|█████████▏| 92/100 [00:08<00:00, 11.42subsets/s]Computing Kernel Inception Distance:  94%|█████████▍| 94/100 [00:08<00:00, 11.51subsets/s]Computing Kernel Inception Distance:  86%|████████▌ | 86/100 [00:07<00:01, 11.04subsets/s]Computing Kernel Inception Distance:  88%|████████▊ | 88/100 [00:07<00:01, 11.14subsets/s]Computing Kernel Inception Distance:  94%|█████████▍| 94/100 [00:08<00:00, 11.47subsets/s]Computing Kernel Inception Distance:  90%|█████████ | 90/100 [00:08<00:00, 11.12subsets/s]Computing Kernel Inception Distance:  97%|█████████▋| 97/100 [00:08<00:00, 11.62subsets/s]Computing Kernel Inception Distance:  90%|█████████ | 90/100 [00:08<00:00, 11.14subsets/s]Computing Kernel Inception Distance:  94%|█████████▍| 94/100 [00:08<00:00, 11.42subsets/s]Computing Kernel Inception Distance:  96%|█████████▌| 96/100 [00:08<00:00, 11.51subsets/s]Computing Kernel Inception Distance:  90%|█████████ | 90/100 [00:08<00:00, 11.15subsets/s]Computing Kernel Inception Distance:  88%|████████▊ | 88/100 [00:07<00:01, 10.99subsets/s]Computing Kernel Inception Distance:  96%|█████████▌| 96/100 [00:08<00:00, 11.47subsets/s]Computing Kernel Inception Distance:  92%|█████████▏| 92/100 [00:08<00:00, 11.10subsets/s]Computing Kernel Inception Distance:  99%|█████████▉| 99/100 [00:08<00:00, 11.63subsets/s]Computing Kernel Inception Distance:  92%|█████████▏| 92/100 [00:08<00:00, 11.13subsets/s]Computing Kernel Inception Distance:  98%|█████████▊| 98/100 [00:08<00:00, 11.51subsets/s]Computing Kernel Inception Distance:  96%|█████████▌| 96/100 [00:08<00:00, 11.42subsets/s]Computing Kernel Inception Distance:  92%|█████████▏| 92/100 [00:08<00:00, 11.13subsets/s]Computing Kernel Inception Distance:  90%|█████████ | 90/100 [00:08<00:00, 10.99subsets/s]                                                                                          kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Computing Kernel Inception Distance:  98%|█████████▊| 98/100 [00:08<00:00, 11.47subsets/s]Computing Kernel Inception Distance:  94%|█████████▍| 94/100 [00:08<00:00, 11.10subsets/s]Computing Kernel Inception Distance:  94%|█████████▍| 94/100 [00:08<00:00, 11.14subsets/s]Computing Kernel Inception Distance: 100%|██████████| 100/100 [00:08<00:00, 11.49subsets/s]                                                                                           kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Computing Kernel Inception Distance:  98%|█████████▊| 98/100 [00:08<00:00, 11.41subsets/s]Computing Kernel Inception Distance:  94%|█████████▍| 94/100 [00:08<00:00, 11.13subsets/s]Computing Kernel Inception Distance:  92%|█████████▏| 92/100 [00:08<00:00, 11.00subsets/s]Computing Kernel Inception Distance: 100%|██████████| 100/100 [00:08<00:00, 11.42subsets/s]                                                                                           kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Computing Kernel Inception Distance:  96%|█████████▌| 96/100 [00:08<00:00, 11.09subsets/s]Computing Kernel Inception Distance:  96%|█████████▌| 96/100 [00:08<00:00, 11.11subsets/s]Computing Kernel Inception Distance: 100%|██████████| 100/100 [00:08<00:00, 11.33subsets/s]                                                                                           kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Computing Kernel Inception Distance:  96%|█████████▌| 96/100 [00:08<00:00, 11.10subsets/s]Computing Kernel Inception Distance:  94%|█████████▍| 94/100 [00:08<00:00, 11.00subsets/s]Computing Kernel Inception Distance:  98%|█████████▊| 98/100 [00:08<00:00, 11.08subsets/s]Computing Kernel Inception Distance:  98%|█████████▊| 98/100 [00:08<00:00, 11.12subsets/s]Computing Kernel Inception Distance:  98%|█████████▊| 98/100 [00:08<00:00, 11.12subsets/s]Computing Kernel Inception Distance:  96%|█████████▌| 96/100 [00:08<00:00, 11.01subsets/s]Computing Kernel Inception Distance: 100%|██████████| 100/100 [00:09<00:00, 11.10subsets/s]                                                                                           kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Computing Kernel Inception Distance: 100%|██████████| 100/100 [00:08<00:00, 11.13subsets/s]                                                                                           kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Computing Kernel Inception Distance: 100%|██████████| 100/100 [00:08<00:00, 11.10subsets/s]                                                                                           kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Computing Kernel Inception Distance:  98%|█████████▊| 98/100 [00:08<00:00, 10.99subsets/s]Computing Kernel Inception Distance: 100%|██████████| 100/100 [00:09<00:00, 10.93subsets/s]                                                                                           kullback_leibler_divergence: 7.9540153
+inception_score_mean: 14.2029765
+inception_score_std: 0.7285984
+frechet_inception_distance: 33.9880220
+kernel_inception_distance_mean: 0.0143395
+kernel_inception_distance_std: 0.0003061
+samples_2024-05-05T05-22-39: KL:  7.95402; ISc: 14.20298 (0.728598); FID: 33.98802; KID: 0.01434 (0.00031)
+Done TOP-64
