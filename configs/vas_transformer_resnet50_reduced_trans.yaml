@@ -10,7 +10,7 @@ model:
           target: torch.nn.Conv1d
           params:
             in_channels: 2048  # feat_depth
-            out_channels: 512  # n_embd
+            out_channels: 1024  # n_embd
             kernel_size: 1
             padding: 0
         GPT_config:
@@ -18,7 +18,7 @@ model:
           block_size: 477  # 53*5 + 212
           n_layer: 12
           n_head: 8
-          n_embd: 512
+          n_embd: 1024
     first_stage_permuter_config:
       target: specvqgan.modules.transformer.permuter.ColumnMajor
       params:
@@ -40,7 +40,7 @@ model:
           ch_mult: [1, 1, 2, 2, 4]
           num_res_blocks: 2
           attn_resolutions: [53]
-          dropout: 0.3
+          dropout: 0.0
         lossconfig:
           target: specvqgan.modules.losses.DummyLoss
     # no permuter for the cond stage as the raw features is already a sequence
@@ -72,15 +72,19 @@ lightning:
     #     min_delta: 0.00
     #     patience: 2
     #     verbose: True
-  # trainer:
-  #   auto_scale_batch_size: binsearch
+  trainer:
+    accelerator: dp
+    #auto_scale_batch_size: binsearch
+    gpus: 8
+    auto_select_gpus: True
+    #auto_lr_find: True
 
 
 data:
   target: train.ConditionedSpectrogramDataModuleFromConfig
   params:
-    batch_size: 16
-    num_workers: 20
+    batch_size: 128
+    num_workers: 64
 
     spec_dir_path: './data/vas/features/*/melspec_10s_22050hz'
     sample_rate: 22050
@@ -98,7 +102,7 @@ data:
     feat_sampler_cfg:
       target: specvqgan.data.vas.ResampleFrames
       params:
-        feat_sample_size: 212  # will resample `feat_crop_len` evenly to match `feat_sample_size`
+        feat_sample_size: 1  # will resample `feat_crop_len` evenly to match `feat_sample_size`
         # times_to_repeat_after_resample: 5  # will duplicate each of `feat_sample_size` by this number
 
     train:

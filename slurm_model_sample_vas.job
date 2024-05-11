@@ -1,14 +1,14 @@
 #!/bin/bash
 #SBATCH --job-name=model_sample_fnet_s
 #SBATCH -M ukko
-#SBATCH -o result_eval_fnet_s_stock.txt
+#SBATCH -o result_eval_resnet50_small_trans.txt
 #SBATCH -p gpu
 #SBATCH -c 80
 #SBATCH -G 8
 #SBATCH --constraint v100
 #SBATCH -n 1
 #SBATCH --mem=128G
-#SBATCH -t 2-00:00:00
+#SBATCH -t 24:00:00
 
 
 # exit when any command fails
@@ -44,7 +44,7 @@ NUM_GPUS=${#NUM_GPUS}
 
 
 # Path to experiment
-EXPERIMENT_PATH=../SpecVQGAN/logs/2024-05-06T16-26-21_vas_transformer_fnet_s
+EXPERIMENT_PATH=./logs/2024-05-10T04-08-50_vas_transformer_resnet50_reduced_trans
 
 # Select a dataset here
 DATASET="VAS"
@@ -60,7 +60,7 @@ VAS_SAMPLES_PER_VIDEO=2
 if [[ "$DATASET" == "VAS" ]]; then
     EVAL_MELCEPTION_CFG="./evaluation/configs/eval_melception_vas.yaml"
     SPEC_DIR_PATH="data/vas/features/*/melspec_10s_22050hz/"
-    RGB_FEATS_DIR_PATH="../SpecVQGAN/data/vas/features/*/feature_efficientnet_v2_s_dim1280_21.5fps/"
+    RGB_FEATS_DIR_PATH="../SpecVQGAN/data/vas/features/*/feature_resnet50_dim2048_21.5fps/"
     SAMPLES_FOLDER="VAS_validation"
     SPLITS="[train,validation]"
     SAMPLER_BATCHSIZE=64
