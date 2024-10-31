@@ -1,6 +1,6 @@
 # SpecVQGAN Fine-Tuning Experiments
 ## Overview
-This repository contains the code used for fine-tuning the [SpecVQGAN](https://github.com/v-iashin/SpecVQGAN) model for the coursework at the *National University of Kyiv-Mohyla Academy* titled *Exploration of Multimodal Approaches in Image-to-Audio Synthesis*. Our primary goal was to examine how several well-known deep learning observations transfer to an image-to-audio domain, via comparative analysis of parameter configurations. Full details on our coursework can be found [here](https://github.com/Exploration-of-image-to-audio-synthesis).
+This repository contains the code used for fine-tuning the [SpecVQGAN](https://github.com/v-iashin/SpecVQGAN) model for the coursework conducted at the *National University of Kyiv-Mohyla Academy*, titled *Exploration of Multimodal Approaches in Image-to-Audio Synthesis*. Our primary goal was to examine how several well-known deep learning observations transfer to an image-to-audio domain, via comparative analysis of parameter configurations. Full details on our coursework can be found [here](https://github.com/Exploration-of-image-to-audio-synthesis).
 
 ## Table of Contents
 1. [Installation](#installation)
