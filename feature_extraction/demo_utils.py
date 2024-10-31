@@ -188,7 +188,7 @@ def load_config(model_dir: str):
 
 def load_model(model_name, log_dir, device):
     to_use_gpu = True if device.type == 'cuda' else False
-    model_dir = maybe_download_model(model_name, log_dir)
+    model_dir = os.path.join(log_dir, model_name)
     config = load_config(model_dir)
 
     # Sampling model

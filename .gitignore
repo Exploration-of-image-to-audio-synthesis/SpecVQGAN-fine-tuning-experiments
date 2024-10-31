@@ -1,10 +1,11 @@
 
 __pycache__
-/logs/
-/evaluation/logs/
+logs
 downloaded_features
 vas
 VAS
 limited_vas
 vas.zip
-/tmp/
+tmp/
+progress
+.vscode

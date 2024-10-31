@@ -1,0 +1,9 @@
+
+Currently Loaded Modules:
+  1) Anaconda3/2023.09-0   2) CUDA/11.8.0   3) cuDNN/8.6.0.163-CUDA-11.8.0
+
+ 
+
+Python 3.8.19
+Global seed set to 23
+slurmstepd: error: *** JOB 274798050 ON ukko3-g601 CANCELLED AT 2024-05-04T16:52:19 ***
